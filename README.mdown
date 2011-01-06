@@ -1,0 +1,25 @@
+# Reddit Game Jam 05
+
+## Info
+
+Rules: http://www.reddit.com/r/RedditGameJam/comments/eqn6g/reddit_game_jam_05_rules/
+
+IRC: freenode.net #redditgamejam
+
+## Concept
+
+TBD
+
+## Resources used
+
+### Textures
+
+TBD
+
+### Fonts
+
+TBD
+
+### Sounds
+
+
