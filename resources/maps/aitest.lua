@@ -14,16 +14,24 @@
 
 require 'vector'
 
-local tileset = love.graphics.newImage('resources/ninja.png')
+local tileset = love.graphics.newImage('resources/images/spritesheet.png')
 tileset:setFilter('nearest', 'nearest')
 
 local tileWidth, tileHeight = 16, 16
 
-
-
 local quadInfo = { 
-  { ' ', 5 * tileWidth, 0 * tileHeight}, -- 1 = grass 
-  { '#', 9 * tileWidth, 6 * tileHeight}, -- 2 = box
+  { ' ', 7 * tileWidth, 7 * tileHeight}, -- 1 = air 
+  { '#', 1 * tileWidth, 3 * tileHeight}, -- 2 = brick floor
+  { ']', 2 * tileWidth, 4 * tileHeight}, -- 2 = brick wall left
+  { '[', 0 * tileWidth, 4 * tileHeight}, -- 2 = brick wall right
+  { '_', 1 * tileWidth, 5 * tileHeight}, -- 2 = brick ceiling
+}
+
+local solid = {
+  '#',
+  ']',
+  '[',
+  '_'
 }
 
 local quads = {}
@@ -35,33 +43,33 @@ end
 
 
 local tileString = [[
-##############################################
-#                                            #
-#                                            #
-#                                            #
-#                                            #
-#                                            #
-#                                            #
-#                                            #
-#                                            #
-#                                            #
-#                                            #
-#                                            #
-#                                            #
-#                                            #
-#                                            #
-#                                            #
-#                                            #
-#                                            #
-#                                            #
-#                                            #
-#                                            #
-#                                            #
-#                                            #
-#     E                                P     #
+______________________________________________
+]                                            [
+]                                            [
+]                                            [
+]                                            [
+]                                            [
+]                                            [
+]                                            [
+]                                            [
+]                                            [
+]                                            [
+]                                            [
+]                                            [
+]                                            [
+]                                            [
+]                                            [
+]                                            [
+]                                            [
+]                                            [
+]                                            [
+]                                            [
+]                                            [
+]                                            [
+]     E                                P     [
 ##############################################
 ]]
 
 local gravity = vector(0, 600)
 
-return tileset, quads, tileString, tileWidth, gravity
+return tileset, quads, tileString, tileWidth, gravity, solid
