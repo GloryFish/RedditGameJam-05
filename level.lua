@@ -9,6 +9,7 @@
 require 'class'
 require 'vector'
 require 'utility'
+require 'astar'
 
 Level = class(function(level, name)
   level.scale = 2
@@ -131,37 +132,79 @@ function Level:toTileCoords(point)
   return coords
 end
 
--- returns a table of points surrounding point which are walkable by an enemy (i.e. includes ladders)
-function Level:getOpenTilePointsForEnemy(point)
-  local points = {}
-  
-  -- top
-  local top = vector(point.x, point.y - 1)
-  if self:pointIsInTileMap(top) then
-    if self.tiles[top.x][top.y] == 'h' or self.tiles[top.x][top.y] == 'H' then
-      table.insert(points, top)
-    end
+
+-- SQ_MapHandler methods
+
+function Level:getNode(location)
+  -- ensure location is in map
+  if location.x < 0 or location.y < 0 then
+    assert(false, 'node out of map on top or left')
+    return nil
   end
   
-  -- right
-  local right = vector(point.x + 1, point.y)
-  if self:pointIsInTileMap(right) and self:tilePointIsWalkable(right) then
-    table.insert(points, right)
+  if location.x > #self.tiles or location.y > #self.tiles[1] then
+    assert(false, 'node out of map on right or bottom')
+    return nil
   end
-
-  -- bottom
-  local bottom = vector(point.x, point.y + 1)
-  if self:pointIsInTileMap(bottom) and self:tilePointIsWalkable(bottom) then
-    table.insert(points, bottom)
+  
+  
+  -- ensure location is walkable
+  if not self:tilePointIsWalkable(location) then
+    assert(false, 'point not walkable')
+    return nil
   end
-
-  -- left
-  local left = vector(point.x - 1, point.y)
-  if self:pointIsInTileMap(left) and self:tilePointIsWalkable(left) then
-    table.insert(points, left)
-  end
+  
+  return Node(location:clone(), 10, location.y * #self.tiles + location.x)
 end
 
-function Level:pointIsInTileMap(point)
-  return point.x > 0 and point.x < #self.tiles and point.y > 0 and point.y < #self.tiles[1]
+
+function Level:getAdjacentNodes(curnode, dest)
+  assert(false, string.format('getAdjacentNodes called for: %s', tostring(curnode.location)))
+  
+  local result = {}
+  local cl = curnode.location
+  local dl = dest
+  
+  local n = false
+  
+  n = self:_handleNode(cl.x + 1, cl.y, curnode, dl.x, dl.y)
+  if n then
+    table.insert(resul, n)
+  end
+
+  n = self:_handleNode(cl.x - 1, cl.y, curnode, dl.x, dl.y)
+  if n then
+    table.insert(resul, n)
+  end
+
+  n = self:_handleNode(cl.x, cl.y + 1, curnode, dl.c, dl.y)
+  if n then
+    table.insert(resul, n)
+  end
+
+  n = self:_handleNode(cl.x, cl.y - 1, curnode, dl.c, dl.y)
+  if n then
+    table.insert(resul, n)
+  end
+  
+  return result
 end
+
+function Level:_handleNode(x, y, fromnode, destx, desty)
+  local n = self:getNode(vector(x, y))
+  
+  if n ~= nil then
+    local dx = math.max(x, destx) - math.min(x, destx)
+    local dy = math.max(y, desty) - math.min(y, desty)
+    local emCost = dx + dy
+    
+    n.mCost = n.mCost + fromnode.mCost
+    n.score = n.mCost + emCost
+    n.parent = fromnode
+    
+    return n
+  end
+  
+  return nil
+end
+

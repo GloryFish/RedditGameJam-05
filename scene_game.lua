@@ -13,6 +13,7 @@ require 'level'
 require 'player'
 require 'enemy'
 require 'heartburst'
+require 'astar'
 require 'camera'
 
 game = Gamestate.new()
@@ -52,21 +53,52 @@ function game.enter(self, pre)
   camera.position = player.position
   camera:update(0)
   
+  game.astar = AStar(lvl)
+  
   love.graphics.setBackgroundColor(255, 255, 255, 255)
   
   love.mouse.setVisible(true)
+  
+  pathMessage = 'No search'
+end
+
+function game.mousereleased(self, x, y, button)
+  local mouseWorldPoint = vector(x, y) + camera.offset
+
+  local mouseTilePoint = lvl:toTileCoords(mouseWorldPoint)
+  
+  local playerTilePoint = lvl:toTileCoords(player.position)
+  
+  local path = game.astar:findPath(mouseTilePoint, playerTilePoint)
+  
+  if path == nil then
+    pathMessage = string.format('No path from %s to %s', tostring(mouseTilePoint), tostring(playerTilePoint))
+  else
+    pathMessage = "Path found"
+  end    
+  
 end
 
 function game.update(self, dt)
   game.logger:update(dt)
   
-  local mouse = vector(love.mouse.getX(), love.mouse.getY())
+  local mouse = vector(love.mouse.getX(), love.mouse.getY()) + camera.offset
   local tile = lvl:toTileCoords(mouse)
-  
+  local tileString = 'air'
+
   tile = tile + vector(1, 1)
   
+  if lvl.tiles[tile.x] then
+    tileString = lvl.tiles[tile.x][tile.y]
+  
+    if tileString == nil or tileString == ' ' then
+      tileString = 'air'
+    end
+  end
+  
+  
   game.logger:addLine(string.format('World: %i, %i', mouse.x, mouse.y))
-  game.logger:addLine(string.format('Tile: %i, %i', tile.x, tile.y))
+  game.logger:addLine(string.format('Tile: %i, %i, %s', tile.x, tile.y, tileString))
   if player.onground then
     game.logger:addLine(string.format('State: %s', 'On Ground'))
   else
@@ -79,6 +111,8 @@ function game.update(self, dt)
   else
     game.logger:addLine(string.format('Wall'))
   end
+  
+  game.logger:addLine(pathMessage)
   
   input:update(dt)
   

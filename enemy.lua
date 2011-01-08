@@ -136,15 +136,10 @@ end
 
 -- Takes a target point in the world and a level and calculates a movement vector
 function Enemy:getAIMovement(target, level)
-  if self.position:dist(target) < 100 then
-    return vector(0, 0)
-  else
-    if self.position.x < target.x then
-      return vector(1, 0)
-    else
-      return vector(-1, 0)
-    end
-  end
+  local selfTile = level:toTileCoords(self.position)
+  local targetTile = level:toTileCoords(target)
+  
+  return vector(0, 0)
 end
   
 function Enemy:draw()
