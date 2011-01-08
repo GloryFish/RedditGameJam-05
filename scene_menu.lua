@@ -18,6 +18,11 @@ function menu.enter(self, pre)
   
   menu.entries = {
     {
+      title = 'AI Test',
+      scene = game,
+      level = 'aitest'
+    },
+    {
       title = 'Play',
       scene = game,
       level = 'steps'

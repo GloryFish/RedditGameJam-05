@@ -20,7 +20,8 @@ Level = class(function(level, name)
 
   -- Now we build an array of characters from the tileString
   level.tiles = {}
-
+  level.enemyStarts = {}
+  
   local width = #(level.tileString:match("[^\n]+"))
 
   for x = 1, width, 1 do 
@@ -38,7 +39,10 @@ Level = class(function(level, name)
       if character == 'P' then
         level:setPlayerStart(x, y)
         level.tiles[x][y] = ' '
-      else
+      elseif character == 'E' then
+        level:addEnemyStart(x, y)
+        level.tiles[x][y] = ' '
+      else  
         level.tiles[x][y] = character
       end
       x = x + 1
@@ -51,6 +55,11 @@ function Level:setPlayerStart(x, y)
   -- playerStart should be placed in the center of the tile so we need to offset the world coordinates by half tileSize
   local coords = self:toWorldCoords(vector(x, y))
   self.playerStart = coords + vector(math.floor(self.tileSize * self.scale / 2), math.floor(self.tileSize * self.scale / 2))
+end
+
+function Level:addEnemyStart(x, y)
+  local coords = self:toWorldCoords(vector(x, y))
+  table.insert(self.enemyStarts, coords + vector(math.floor(self.tileSize * self.scale / 2), math.floor(self.tileSize * self.scale / 2)))
 end
 
 function Level:draw()
