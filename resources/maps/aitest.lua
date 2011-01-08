@@ -25,14 +25,18 @@ local quadInfo = {
   { ']', 2 * tileWidth, 4 * tileHeight}, -- 2 = brick wall left
   { '[', 0 * tileWidth, 4 * tileHeight}, -- 2 = brick wall right
   { '_', 1 * tileWidth, 5 * tileHeight}, -- 2 = brick ceiling
+  { 'h', 3 * tileWidth, 4 * tileHeight}, -- 2 = ladder in brick
+  { 'H', 3 * tileWidth, 5 * tileHeight}, -- 2 = ladder
 }
 
 local solid = {
   '#',
   ']',
   '[',
-  '_'
+  '_',
+  'h'
 }
+
 
 local quads = {}
 
@@ -61,12 +65,12 @@ ______________________________________________
 ]                                            [
 ]                                            [
 ]                                            [
-]                                            [
-]                                            [
-]                                            [
-]                                            [
-]                                            [
-]     E   P                                  [
+] h##########           #####                [
+] H                                          [
+] H                                          [
+] H    ##########  ####h#################    [
+] H                    H                     [
+] H    E   P           H                     [
 ##############################################
 ]]
 

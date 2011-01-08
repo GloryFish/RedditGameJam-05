@@ -97,6 +97,16 @@ function Level:pointIsWalkable(point)
   return true
 end
 
+function Level:tilePointIsWalkable(tilePoint)
+  tilePoint = tilePoint + vector(1, 1)
+  
+  if self.tiles[tilePoint.x] ~= nil then
+    return not in_table(self.tiles[tilePoint.x][tilePoint.y], self.solid)
+  end
+  
+  return true
+end
+
 -- This function takes a world point returns the Y position of the top edge of the matching tile in world space
 function Level:floorPosition(point)
   local y = math.floor(point.y / (self.tileSize * self.scale))
@@ -119,4 +129,39 @@ function Level:toTileCoords(point)
                         math.floor(point.y / (self.tileSize * self.scale)))
 
   return coords
+end
+
+-- returns a table of points surrounding point which are walkable by an enemy (i.e. includes ladders)
+function Level:getOpenTilePointsForEnemy(point)
+  local points = {}
+  
+  -- top
+  local top = vector(point.x, point.y - 1)
+  if self:pointIsInTileMap(top) then
+    if self.tiles[top.x][top.y] == 'h' or self.tiles[top.x][top.y] == 'H' then
+      table.insert(points, top)
+    end
+  end
+  
+  -- right
+  local right = vector(point.x + 1, point.y)
+  if self:pointIsInTileMap(right) and self:tilePointIsWalkable(right) then
+    table.insert(points, right)
+  end
+
+  -- bottom
+  local bottom = vector(point.x, point.y + 1)
+  if self:pointIsInTileMap(bottom) and self:tilePointIsWalkable(bottom) then
+    table.insert(points, bottom)
+  end
+
+  -- left
+  local left = vector(point.x - 1, point.y)
+  if self:pointIsInTileMap(left) and self:tilePointIsWalkable(left) then
+    table.insert(points, left)
+  end
+end
+
+function Level:pointIsInTileMap(point)
+  return point.x > 0 and point.x < #self.tiles and point.y > 0 and point.y < #self.tiles[1]
 end
