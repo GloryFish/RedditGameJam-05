@@ -11,6 +11,7 @@ require 'vector'
 require 'controller_manager'
 require 'level'
 require 'player'
+require 'enemy'
 require 'camera'
 
 game = Gamestate.new()
@@ -30,6 +31,13 @@ function game.enter(self, pre)
   lvl = Level(game.level)
 
   player = Player(lvl.playerStart)
+  
+  game.enemies = {}
+  
+  for i,enemyStart in ipairs(lvl.enemyStarts) do
+    local enemy = Enemy(enemyStart)
+    table.insert(game.enemies, enemy)
+  end
 
   camera = Camera()
   camera.bounds = {
