@@ -83,6 +83,11 @@ function game.update(self, dt)
     Gamestate.switch(menu)
   end
 
+  -- Update enemies
+  for i, enemy in ipairs(game.enemies) do
+    enemy:update(dt, lvl, player.position)
+  end
+
   -- Apply any controller movement to the player
   player:setMovement(input.state.movement)
   
@@ -172,6 +177,12 @@ function game.draw(self)
   -- Game
   love.graphics.translate(-camera.offset.x, -camera.offset.y)
   lvl:draw()
+  
+  -- Update enemies
+  for i, enemy in ipairs(game.enemies) do
+    enemy:draw()
+  end
+  
   player:draw()
 
   love.graphics.pop()
