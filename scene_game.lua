@@ -12,6 +12,7 @@ require 'controller_manager'
 require 'level'
 require 'player'
 require 'enemy'
+require 'heartburst'
 require 'camera'
 
 game = Gamestate.new()
@@ -38,6 +39,8 @@ function game.enter(self, pre)
     local enemy = Enemy(enemyStart)
     table.insert(game.enemies, enemy)
   end
+  
+  game.heartburst = HeartBurst()
 
   camera = Camera()
   camera.bounds = {
@@ -86,7 +89,13 @@ function game.update(self, dt)
   -- Update enemies
   for i, enemy in ipairs(game.enemies) do
     enemy:update(dt, lvl, player.position)
+    
+    if player.position:dist(enemy.position) < 32 then
+      game.heartburst:burst(player.position, math.random(3, 5))
+    end
   end
+
+  game.heartburst:update(dt)
 
   -- Apply any controller movement to the player
   player:setMovement(input.state.movement)
@@ -162,6 +171,7 @@ function game.update(self, dt)
     end
   end
   
+  
   -- Here we update the player, the final velocity will be applied here
   player:update(dt)
   
@@ -184,6 +194,8 @@ function game.draw(self)
   end
   
   player:draw()
+
+  game.heartburst:draw()
 
   love.graphics.pop()
 

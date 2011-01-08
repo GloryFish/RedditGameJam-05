@@ -33,6 +33,11 @@ function vector(x,y)
 	return v
 end
 
+function vector_random()
+  local angle = math.random() * math.pi * 2
+  return vector(math.cos(angle), math.sin(angle))
+end
+
 function isvector(v)
 	return getmetatable(v) == Vector
 end
