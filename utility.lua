@@ -24,3 +24,12 @@ function deepcopy(object)
     end
     return _copy(object)
 end
+
+function in_table(needle, haystack)
+  for _, v in pairs(haystack) do
+    if v == needle then 
+      return true 
+    end
+  end
+  return false
+end

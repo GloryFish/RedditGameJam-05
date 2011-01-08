@@ -8,6 +8,7 @@
 
 require 'class'
 require 'vector'
+require 'utility'
 
 Level = class(function(level, name)
   level.scale = 2
@@ -16,11 +17,12 @@ Level = class(function(level, name)
   -- a set of quads for each image in the tileset indexed by
   -- an ascii character, a string representing the initial level layout,
   -- and the size of each tile in the tileset.
-  level.tileset, level.quads, level.tileString, level.tileSize, level.gravity = love.filesystem.load(string.format('resources/maps/%s.lua', name))()
+  level.tileset, level.quads, level.tileString, level.tileSize, level.gravity, level.solid = love.filesystem.load(string.format('resources/maps/%s.lua', name))()
 
   -- Now we build an array of characters from the tileString
   level.tiles = {}
-
+  level.enemyStarts = {}
+  
   local width = #(level.tileString:match("[^\n]+"))
 
   for x = 1, width, 1 do 
@@ -38,7 +40,10 @@ Level = class(function(level, name)
       if character == 'P' then
         level:setPlayerStart(x, y)
         level.tiles[x][y] = ' '
-      else
+      elseif character == 'E' then
+        level:addEnemyStart(x, y)
+        level.tiles[x][y] = ' '
+      else  
         level.tiles[x][y] = character
       end
       x = x + 1
@@ -51,6 +56,11 @@ function Level:setPlayerStart(x, y)
   -- playerStart should be placed in the center of the tile so we need to offset the world coordinates by half tileSize
   local coords = self:toWorldCoords(vector(x, y))
   self.playerStart = coords + vector(math.floor(self.tileSize * self.scale / 2), math.floor(self.tileSize * self.scale / 2))
+end
+
+function Level:addEnemyStart(x, y)
+  local coords = self:toWorldCoords(vector(x, y))
+  table.insert(self.enemyStarts, coords + vector(math.floor(self.tileSize * self.scale / 2), math.floor(self.tileSize * self.scale / 2)))
 end
 
 function Level:draw()
@@ -81,9 +91,7 @@ function Level:pointIsWalkable(point)
   tilePoint = tilePoint + vector(1, 1)
   
   if self.tiles[tilePoint.x] ~= nil then
-    if self.tiles[tilePoint.x][tilePoint.y] == '#' then
-      return false
-    end
+    return not in_table(self.tiles[tilePoint.x][tilePoint.y], self.solid)
   end
   
   return true

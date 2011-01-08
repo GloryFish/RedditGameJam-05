@@ -17,7 +17,7 @@ Player = class(function(player, pos)
   } 
 
   -- Tileset
-  player.tileset = love.graphics.newImage('resources/ninja.png')
+  player.tileset = love.graphics.newImage('resources/images/spritesheet.png')
   player.tileset:setFilter('nearest', 'nearest')
 
   player.tileSize = 16
@@ -28,29 +28,26 @@ Player = class(function(player, pos)
   player.animations = {}
   
   player.animations['standing'] = {}
+  player.animations['standing'].frameInterval = 0.2
   player.animations['standing'].quads = {
-    love.graphics.newQuad(0, 0, player.tileSize, player.tileSize, player.tileset:getWidth(), player.tileset:getHeight())
+    love.graphics.newQuad(4 * player.tileSize, 0, player.tileSize, player.tileSize, player.tileset:getWidth(), player.tileset:getHeight()),
+    love.graphics.newQuad(5 * player.tileSize, 0, player.tileSize, player.tileSize, player.tileset:getWidth(), player.tileset:getHeight()),
+    love.graphics.newQuad(6 * player.tileSize, 0, player.tileSize, player.tileSize, player.tileset:getWidth(), player.tileset:getHeight()),
+    love.graphics.newQuad(7 * player.tileSize, 0, player.tileSize, player.tileSize, player.tileset:getWidth(), player.tileset:getHeight())
   }
   
   player.animations['jumping'] = {}
   player.animations['jumping'].quads = {
-    love.graphics.newQuad(1 * player.tileSize, 3 * player.tileSize, player.tileSize, player.tileSize, player.tileset:getWidth(), player.tileset:getHeight())
-  }
-
-  player.animations['wallsliding'] = {}
-  player.animations['wallsliding'].quads = {
-    love.graphics.newQuad(5 * player.tileSize, 6 * player.tileSize, player.tileSize, player.tileSize, player.tileset:getWidth(), player.tileset:getHeight())
+    love.graphics.newQuad(0 * player.tileSize, 1 * player.tileSize, player.tileSize, player.tileSize, player.tileset:getWidth(), player.tileset:getHeight())
   }
 
   player.animations['walking'] = {}
   player.animations['walking'].frameInterval = 0.2
   player.animations['walking'].quads = {
-    love.graphics.newQuad(0 * player.tileSize, 2 * player.tileSize, player.tileSize, player.tileSize, player.tileset:getWidth(), player.tileset:getHeight()),
-    love.graphics.newQuad(1 * player.tileSize, 2 * player.tileSize, player.tileSize, player.tileSize, player.tileset:getWidth(), player.tileset:getHeight()),
-    love.graphics.newQuad(2 * player.tileSize, 2 * player.tileSize, player.tileSize, player.tileSize, player.tileset:getWidth(), player.tileset:getHeight()),
-    love.graphics.newQuad(3 * player.tileSize, 2 * player.tileSize, player.tileSize, player.tileSize, player.tileset:getWidth(), player.tileset:getHeight()),
-    love.graphics.newQuad(4 * player.tileSize, 2 * player.tileSize, player.tileSize, player.tileSize, player.tileset:getWidth(), player.tileset:getHeight()),
-    love.graphics.newQuad(5 * player.tileSize, 2 * player.tileSize, player.tileSize, player.tileSize, player.tileset:getWidth(), player.tileset:getHeight())
+    love.graphics.newQuad(0 * player.tileSize, 0 * player.tileSize, player.tileSize, player.tileSize, player.tileset:getWidth(), player.tileset:getHeight()),
+    love.graphics.newQuad(1 * player.tileSize, 0 * player.tileSize, player.tileSize, player.tileSize, player.tileset:getWidth(), player.tileset:getHeight()),
+    love.graphics.newQuad(2 * player.tileSize, 0 * player.tileSize, player.tileSize, player.tileSize, player.tileset:getWidth(), player.tileset:getHeight()),
+    love.graphics.newQuad(3 * player.tileSize, 0 * player.tileSize, player.tileSize, player.tileSize, player.tileset:getWidth(), player.tileset:getHeight()),
   }
   
   player.animation = {}

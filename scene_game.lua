@@ -11,6 +11,7 @@ require 'vector'
 require 'controller_manager'
 require 'level'
 require 'player'
+require 'enemy'
 require 'camera'
 
 game = Gamestate.new()
@@ -30,6 +31,13 @@ function game.enter(self, pre)
   lvl = Level(game.level)
 
   player = Player(lvl.playerStart)
+  
+  game.enemies = {}
+  
+  for i,enemyStart in ipairs(lvl.enemyStarts) do
+    local enemy = Enemy(enemyStart)
+    table.insert(game.enemies, enemy)
+  end
 
   camera = Camera()
   camera.bounds = {
@@ -73,6 +81,11 @@ function game.update(self, dt)
   
   if input.state.buttons.newpress.back then
     Gamestate.switch(menu)
+  end
+
+  -- Update enemies
+  for i, enemy in ipairs(game.enemies) do
+    enemy:update(dt, lvl, player.position)
   end
 
   -- Apply any controller movement to the player
@@ -164,6 +177,12 @@ function game.draw(self)
   -- Game
   love.graphics.translate(-camera.offset.x, -camera.offset.y)
   lvl:draw()
+  
+  -- Update enemies
+  for i, enemy in ipairs(game.enemies) do
+    enemy:draw()
+  end
+  
   player:draw()
 
   love.graphics.pop()
