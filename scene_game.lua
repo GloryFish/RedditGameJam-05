@@ -18,6 +18,7 @@ require 'pickup'
 require 'floating_text'
 require 'astar'
 require 'camera'
+require 'scene_gameover'
 
 game = Gamestate.new()
 game.level = ''
@@ -76,6 +77,9 @@ function game.enter(self, pre)
   
   music.game:setVolume(0.5)
   love.audio.play(music.game)
+  
+  player.resolve = 0.01
+  game.score = 500
 end
 
 function game.mousereleased(self, x, y, button)
@@ -151,6 +155,11 @@ function game.update(self, dt)
       game.heartburst:burst(player.position, math.random(3, 5))
       enemy:burst()
       player:burst()
+      
+      if player.resolve < 0 then
+        gameover.finalscore = game.score
+        Gamestate.switch(gameover) 
+      end
     end
   end
 

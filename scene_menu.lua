@@ -165,6 +165,7 @@ function menu.draw(self)
     currentLinePosition = currentLinePosition + self.lineHeight;
   end
   
+  love.graphics.setColor(255, 255, 255, 255)
   love.graphics.draw(menu.redditlogo, 500, 500)
   
   if menu.leaving then
