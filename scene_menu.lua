@@ -17,6 +17,8 @@ function menu.enter(self, pre)
   menu.title = 'Unrequited'
   menu.subtitle = 'a game by Jay Roberts'
   
+  menu.redditlogo = love.graphics.newImage('resources/images/redditgamejam05.png')
+  
   menu.sounds = {
     menuselect = love.audio.newSource('resources/sounds/menuselect.mp3', 'static'),
     menumove = love.audio.newSource('resources/sounds/menumove.mp3', 'static')
@@ -45,15 +47,15 @@ function menu.enter(self, pre)
       a = 255
     },
     highlight = {
-      r = 0,
+      r = 255,
       g = 0,
       b = 0,
       a = 255
     },
     background = {
-      r = 200,
+      r = 240,
       g = 200,
-      b = 220,
+      b = 200,
       a = 255
     }
   }
@@ -162,6 +164,8 @@ function menu.draw(self)
 
     currentLinePosition = currentLinePosition + self.lineHeight;
   end
+  
+  love.graphics.draw(menu.redditlogo, 500, 500)
   
   if menu.leaving then
     local overlayAlpha = (1 - ((menu.leaveInterval - menu.leaveDuration) / menu.leaveInterval)) * 255
