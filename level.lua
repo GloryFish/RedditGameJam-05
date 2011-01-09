@@ -108,6 +108,42 @@ function Level:tilePointIsWalkable(tilePoint)
   return true
 end
 
+function Level:tilePointIsWalkableByEnemy(tilePoint)
+  tilePoint = tilePoint + vector(1, 1)
+  
+  if self.tiles[tilePoint.x] ~= nil then
+    local tile = self.tiles[tilePoint.x][tilePoint.y]
+    
+    -- Check for solid
+    local solid = {
+      '#',
+      ']',
+      '[',
+      '_',
+    }
+    if in_table(tile, solid) then
+      return false
+    end
+    
+    -- is it a ladder?
+    if tile == 'h' or tile == 'H' then
+      return true
+    else
+      -- Ensure that there is a solid tile or a ladder directly below
+      local tileBelow = self.tiles[tilePoint.x][tilePoint.y + 1]
+      if in_table(tileBelow, solid) or tileBelow == 'h' then
+        return true
+      else
+        return false
+      end
+    end
+  end
+  
+  return true
+end
+
+
+
 -- This function takes a world point returns the Y position of the top edge of the matching tile in world space
 function Level:floorPosition(point)
   local y = math.floor(point.y / (self.tileSize * self.scale))
@@ -149,7 +185,7 @@ function Level:getNode(location)
   
   
   -- ensure location is walkable
-  if not self:tilePointIsWalkable(location) then
+  if not self:tilePointIsWalkableByEnemy(location) then
     return nil
   end
   
