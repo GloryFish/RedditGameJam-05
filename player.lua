@@ -65,7 +65,7 @@ Player = class(function(player, pos)
   player.movement = vector(0, 0) -- This holds a vector containing the last movement input recieved
   
   player.velocity = vector(0, 0)
-  player.jumpVector = vector(0, -200)
+  player.jumpVector = vector(0, -250)
 end)
 
 -- Call during update with the joystick vector

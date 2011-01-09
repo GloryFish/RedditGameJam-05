@@ -9,7 +9,7 @@
 require 'class'
 require 'vector'
 
-Enemy = class(function(enemy, pos)
+Enemy = class(function(enemy, pos, prey)
   
   -- Tileset
   enemy.tileset = love.graphics.newImage('resources/images/spritesheet.png')
@@ -48,19 +48,28 @@ Enemy = class(function(enemy, pos)
   -- Instance vars
   enemy.flip = 1
   enemy.position = pos
-  enemy.speed = 90
+  enemy.speed = 110
   enemy.onground = true
   enemy.state = 'standing'
   enemy.movement = vector(0, 0) -- This holds a vector containing the last movement input recieved
   
   enemy.velocity = vector(0, 0)
   enemy.jumpVector = vector(0, -200)
+  
+  enemy.path = nil
+  enemy.pathInterval = 3 -- Wait 5 seconds before generating a new path
+  enemy.pathDuration = 2 -- how long since last path generation
+  
 end)
 
 -- Call during update with a normalized movement vector
 function Enemy:setMovement(movement)
   self.movement = movement
   self.velocity.x = movement.x * self.speed
+  self.velocity.y = movement.y * self.speed
+  
+  
+  
   
   if movement.x > 0 then
     self.flip = 1
@@ -112,9 +121,12 @@ end
 
 function Enemy:update(dt, level, target)
   self.animation.elapsed = self.animation.elapsed + dt
+  self.pathDuration = self.pathDuration + dt
   
   -- Get movement
   self:setMovement(self:getAIMovement(target, level))
+  
+  -- Are we on a ladder?
   
   -- Handle animation
   if #self.animations[self.animation.current].quads > 1 then -- More than one frame
@@ -134,17 +146,77 @@ function Enemy:update(dt, level, target)
   self.position = self.position + self.velocity * dt
 end
 
--- Takes a target point in the world and a level and calculates a movement vector
+-- Takes a target entity in the world (typically the player) and the level and calculates a movement vector
 function Enemy:getAIMovement(target, level)
-  if self.position:dist(target) < 100 then
-    return vector(0, 0)
-  else
-    if self.position.x < target.x then
-      return vector(1, 0)
-    else
-      return vector(-1, 0)
+  local selfTile = level:toTileCoords(self.position)
+  local targetTile = level:toTileCoords(target.position)
+  
+  -- We can't fly so find the position of the floor under the target
+  if not target.onground then
+    local y = targetTile.y
+    while y < #level.tiles[1] do -- Stop if we reach the bottom of the world
+      if in_table(level.tiles[targetTile.x + 1][y + 1], level.solid) then
+        targetTile.y = y - 1
+        break
+      end
+      y = y + 1
     end
   end
+  
+  -- Now we have a target, get a path to it
+  if self.pathDuration > self.pathInterval then
+    self.pathDuration = 0
+    self.path = astar:findPath(selfTile, targetTile)
+  end
+  
+  -- If we have a path, follow it
+  if self.path ~= nil then
+    local node = self.path.nodes[1]
+    
+    if node ~= nil then
+      if selfTile.x == node.location.x and selfTile.y == node.location.y then -- are we in the first node? REMOVE IT!
+        table.remove(self.path.nodes, 1)
+        node = self.path.nodes[1]
+      end
+    else -- we need a new path
+      self.pathDuration = 3
+    end
+  
+    if node ~= nil then
+      local movement = vector(0, 0)
+      
+      -- Adjust position
+      local nodeWorld = level:toWorldCoordsCenter(node.location)
+      
+      -- horizontal
+      if math.abs(self.position.x - nodeWorld.x) > 1 then
+        if self.position.x < nodeWorld.x then
+          movement = movement + vector(1, 0)
+        elseif self.position.x > nodeWorld.x then
+          movement = movement + vector(-1, 0)
+        end
+      end
+      
+      -- vertical
+      if math.abs(self.position.y - nodeWorld.y) > 1 then
+        if self.position.y < nodeWorld.y then
+          movement = movement + vector(0, 1)
+        elseif self.position.y > nodeWorld.y then
+          movement = movement + vector(0, -1)
+        end
+      end
+    
+      return movement
+    else
+       -- We're at the end of the path, stand still for now
+      self.pathDuration = 3
+      return vector(0, 0)
+    end
+    
+  else -- No path
+    return vector(0, 0) -- Just stand there
+  end
+  
 end
   
 function Enemy:draw()
@@ -159,5 +231,9 @@ function Enemy:draw()
                       self.scale,
                       self.offset.x,
                       self.offset.y)
+
+  if self.path ~= nil then
+    self.path:draw(0, 0, 255)
+  end
 end
 

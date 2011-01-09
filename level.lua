@@ -9,6 +9,7 @@
 require 'class'
 require 'vector'
 require 'utility'
+require 'astar'
 
 Level = class(function(level, name)
   level.scale = 2
@@ -97,6 +98,52 @@ function Level:pointIsWalkable(point)
   return true
 end
 
+function Level:tilePointIsWalkable(tilePoint)
+  tilePoint = tilePoint + vector(1, 1)
+  
+  if self.tiles[tilePoint.x] ~= nil then
+    return not in_table(self.tiles[tilePoint.x][tilePoint.y], self.solid)
+  end
+  
+  return true
+end
+
+function Level:tilePointIsWalkableByEnemy(tilePoint)
+  tilePoint = tilePoint + vector(1, 1)
+  
+  if self.tiles[tilePoint.x] ~= nil then
+    local tile = self.tiles[tilePoint.x][tilePoint.y]
+    
+    -- Check for solid
+    local solid = {
+      '#',
+      ']',
+      '[',
+      '_',
+    }
+    if in_table(tile, solid) then
+      return false
+    end
+    
+    -- is it a ladder?
+    if tile == 'h' or tile == 'H' then
+      return true
+    else
+      -- Ensure that there is a solid tile or a ladder directly below
+      local tileBelow = self.tiles[tilePoint.x][tilePoint.y + 1]
+      if in_table(tileBelow, solid) or tileBelow == 'h' then
+        return true
+      else
+        return false
+      end
+    end
+  end
+  
+  return true
+end
+
+
+
 -- This function takes a world point returns the Y position of the top edge of the matching tile in world space
 function Level:floorPosition(point)
   local y = math.floor(point.y / (self.tileSize * self.scale))
@@ -114,9 +161,95 @@ function Level:toWorldCoords(point)
   return world
 end
 
+function Level:toWorldCoordsCenter(point)
+  local world = vector(
+    point.x * self.tileSize * self.scale,
+    point.y * self.tileSize * self.scale
+  )
+  
+  world = world + vector(self.tileSize * self.scale / 2, self.tileSize * self.scale / 2)
+  
+  return world
+end
+
+
 function Level:toTileCoords(point)
   local coords = vector(math.floor(point.x / (self.tileSize * self.scale)),
                         math.floor(point.y / (self.tileSize * self.scale)))
 
   return coords
 end
+
+
+-- SQ_MapHandler methods
+
+function Level:getNode(location)
+  -- ensure location is in map
+  if location.x < 0 or location.y < 0 then
+    assert(false, 'node out of map on top or left')
+    return nil
+  end
+  
+  if location.x > #self.tiles or location.y > #self.tiles[1] then
+    assert(false, 'node out of map on right or bottom')
+    return nil
+  end
+  
+  
+  -- ensure location is walkable
+  if not self:tilePointIsWalkableByEnemy(location) then
+    return nil
+  end
+  
+  return Node(location:clone(), 10, location.y * #self.tiles + location.x)
+end
+
+
+function Level:getAdjacentNodes(curnode, dest)
+  local result = {}
+  local cl = curnode.location
+  local dl = dest
+  
+  local n = false
+  
+  n = self:_handleNode(cl.x + 1, cl.y, curnode, dl.x, dl.y)
+  if n then
+    table.insert(result, n)
+  end
+
+  n = self:_handleNode(cl.x - 1, cl.y, curnode, dl.x, dl.y)
+  if n then
+    table.insert(result, n)
+  end
+
+  n = self:_handleNode(cl.x, cl.y + 1, curnode, dl.x, dl.y)
+  if n then
+    table.insert(result, n)
+  end
+
+  n = self:_handleNode(cl.x, cl.y - 1, curnode, dl.x, dl.y)
+  if n then
+    table.insert(result, n)
+  end
+  
+  return result
+end
+
+function Level:_handleNode(x, y, fromnode, destx, desty)
+  local n = self:getNode(vector(x, y))
+  
+  if n ~= nil then
+    local dx = math.max(x, destx) - math.min(x, destx)
+    local dy = math.max(y, desty) - math.min(y, desty)
+    local emCost = dx + dy
+    
+    n.mCost = n.mCost + fromnode.mCost
+    n.score = n.mCost + emCost
+    n.parent = fromnode
+    
+    return n
+  end
+  
+  return nil
+end
+

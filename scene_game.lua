@@ -13,6 +13,7 @@ require 'level'
 require 'player'
 require 'enemy'
 require 'heartburst'
+require 'astar'
 require 'camera'
 
 game = Gamestate.new()
@@ -36,7 +37,7 @@ function game.enter(self, pre)
   game.enemies = {}
   
   for i,enemyStart in ipairs(lvl.enemyStarts) do
-    local enemy = Enemy(enemyStart)
+    local enemy = Enemy(enemyStart, player)
     table.insert(game.enemies, enemy)
   end
   
@@ -52,21 +53,54 @@ function game.enter(self, pre)
   camera.position = player.position
   camera:update(0)
   
+  astar = AStar(lvl)
+  
   love.graphics.setBackgroundColor(255, 255, 255, 255)
   
   love.mouse.setVisible(true)
+  
+  path = nil
+  
+  pathMessage = 'No search'
+end
+
+function game.mousereleased(self, x, y, button)
+  local mouseWorldPoint = vector(x, y) + camera.offset
+
+  local mouseTilePoint = lvl:toTileCoords(mouseWorldPoint)
+  
+  local playerTilePoint = lvl:toTileCoords(player.position)
+  
+  path = astar:findPath(mouseTilePoint, playerTilePoint)
+  
+  if path == nil then
+    pathMessage = string.format('No path from %s to %s', tostring(mouseTilePoint), tostring(playerTilePoint))
+  else
+    pathMessage = "Path found"
+  end    
+  
 end
 
 function game.update(self, dt)
   game.logger:update(dt)
   
-  local mouse = vector(love.mouse.getX(), love.mouse.getY())
+  local mouse = vector(love.mouse.getX(), love.mouse.getY()) + camera.offset
   local tile = lvl:toTileCoords(mouse)
-  
+  local tileString = 'air'
+
   tile = tile + vector(1, 1)
   
+  if lvl.tiles[tile.x] then
+    tileString = lvl.tiles[tile.x][tile.y]
+  
+    if tileString == nil or tileString == ' ' then
+      tileString = 'air'
+    end
+  end
+  
+  
   game.logger:addLine(string.format('World: %i, %i', mouse.x, mouse.y))
-  game.logger:addLine(string.format('Tile: %i, %i', tile.x, tile.y))
+  game.logger:addLine(string.format('Tile: %i, %i, %s', tile.x, tile.y, tileString))
   if player.onground then
     game.logger:addLine(string.format('State: %s', 'On Ground'))
   else
@@ -80,6 +114,8 @@ function game.update(self, dt)
     game.logger:addLine(string.format('Wall'))
   end
   
+  game.logger:addLine(pathMessage)
+  
   input:update(dt)
   
   if input.state.buttons.newpress.back then
@@ -88,7 +124,7 @@ function game.update(self, dt)
 
   -- Update enemies
   for i, enemy in ipairs(game.enemies) do
-    enemy:update(dt, lvl, player.position)
+    enemy:update(dt, lvl, player)
     
     if player.position:dist(enemy.position) < 32 then
       game.heartburst:burst(player.position, math.random(3, 5))
@@ -196,6 +232,11 @@ function game.draw(self)
   player:draw()
 
   game.heartburst:draw()
+
+
+  if path ~= nil then
+    path:draw(255, 0, 0)
+  end
 
   love.graphics.pop()
 
