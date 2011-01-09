@@ -14,6 +14,7 @@ require 'player'
 require 'enemy'
 require 'heartburst'
 require 'resolve'
+require 'pickup'
 require 'astar'
 require 'camera'
 
@@ -31,13 +32,13 @@ function game.enter(self, pre)
   end
   
 
-  lvl = Level(game.level)
+  level = Level(game.level)
 
-  player = Player(lvl.playerStart)
+  player = Player(level.playerStart)
   
   game.enemies = {}
   
-  for i,enemyStart in ipairs(lvl.enemyStarts) do
+  for i,enemyStart in ipairs(level.enemyStarts) do
     local enemy = Enemy(enemyStart, player)
     table.insert(game.enemies, enemy)
   end
@@ -47,14 +48,16 @@ function game.enter(self, pre)
   camera = Camera()
   camera.bounds = {
     top = 0,
-    right = math.max(lvl:getWidth(), love.graphics.getWidth()),
-    bottom = math.max(lvl:getHeight(), love.graphics.getHeight()),
+    right = math.max(level:getWidth(), love.graphics.getWidth()),
+    bottom = math.max(level:getHeight(), love.graphics.getHeight()),
     left = 0
   }
   camera.position = player.position
   camera:update(0)
   
-  astar = AStar(lvl)
+  astar = AStar(level)
+  
+  game.pickups = {}
   
   game.resolve = Resolve(vector(10, 580))
   
@@ -70,9 +73,9 @@ end
 function game.mousereleased(self, x, y, button)
   local mouseWorldPoint = vector(x, y) + camera.offset
 
-  local mouseTilePoint = lvl:toTileCoords(mouseWorldPoint)
+  local mouseTilePoint = level:toTileCoords(mouseWorldPoint)
   
-  local playerTilePoint = lvl:toTileCoords(player.position)
+  local playerTilePoint = level:toTileCoords(player.position)
   
   path = astar:findPath(mouseTilePoint, playerTilePoint)
   
@@ -84,17 +87,23 @@ function game.mousereleased(self, x, y, button)
   
 end
 
+function game.spawnRandomPickup(self)
+  local pos = level.pickupSpawns[math.random(#level.pickupSpawns)]
+  local pickup = Pickup(pos) 
+  table.insert(self.pickups, pickup)
+end
+
 function game.update(self, dt)
   game.logger:update(dt)
   
   local mouse = vector(love.mouse.getX(), love.mouse.getY()) + camera.offset
-  local tile = lvl:toTileCoords(mouse)
+  local tile = level:toTileCoords(mouse)
   local tileString = 'air'
 
   tile = tile + vector(1, 1)
   
-  if lvl.tiles[tile.x] then
-    tileString = lvl.tiles[tile.x][tile.y]
+  if level.tiles[tile.x] then
+    tileString = level.tiles[tile.x][tile.y]
   
     if tileString == nil or tileString == ' ' then
       tileString = 'air'
@@ -109,9 +118,9 @@ function game.update(self, dt)
   else
     game.logger:addLine(string.format('State: %s', 'Jumping'))
   end
-  game.logger:addLine(string.format('Width: %i Height: %i', lvl:getWidth(), lvl:getHeight()))
+  game.logger:addLine(string.format('Width: %i Height: %i', level:getWidth(), level:getHeight()))
 
-  if (lvl:pointIsWalkable(mouse)) then
+  if (level:pointIsWalkable(mouse)) then
     game.logger:addLine(string.format('Walkable'))
   else
     game.logger:addLine(string.format('Wall'))
@@ -127,13 +136,31 @@ function game.update(self, dt)
 
   -- Update enemies
   for i, enemy in ipairs(game.enemies) do
-    enemy:update(dt, lvl, player)
+    enemy:update(dt, level, player)
     
     if player.position:dist(enemy.position) < 32 then
       game.heartburst:burst(player.position, math.random(3, 5))
       enemy:burst()
       player:burst()
     end
+  end
+
+  -- Update pickups
+  local removePickups = {}
+  for i, pickup in ipairs(game.pickups) do
+    pickup:update(dt)
+    
+    if player.position:dist(pickup.position) < 16 then
+      pickup:get()
+      table.insert(removePickups, i)
+    end
+  end
+  for i, v in ipairs(removePickups) do
+     table.remove(self.pickups, v-i+1)
+  end
+  
+  if #self.pickups == 0 then
+    self:spawnRandomPickup()
   end
 
   game.heartburst:update(dt)
@@ -154,7 +181,7 @@ function game.update(self, dt)
     gravityAmount = 0.5
   end
   
-  player.velocity = player.velocity + lvl.gravity * dt * gravityAmount -- Gravity
+  player.velocity = player.velocity + level.gravity * dt * gravityAmount -- Gravity
   
   if dt > 0.5 then
     player.velocity.y = 0
@@ -168,8 +195,8 @@ function game.update(self, dt)
     local testBL = vector(curBL.x, newBL.y)
     local testBR = vector(curBR.x, newBR.y)
     
-    if lvl:pointIsWalkable(testBL) == false or lvl:pointIsWalkable(testBR) == false then -- Collide with bottom
-      player:setFloorPosition(lvl:floorPosition(testBL))
+    if level:pointIsWalkable(testBL) == false or level:pointIsWalkable(testBR) == false then -- Collide with bottom
+      player:setFloorPosition(level:floorPosition(testBL))
       player.velocity.y = 0
       player.onground = true
     end
@@ -179,7 +206,7 @@ function game.update(self, dt)
     local testUL = vector(curUL.x, newUL.y)
     local testUR = vector(curUR.x, newUR.y)
 
-    if lvl:pointIsWalkable(testUL) == false or lvl:pointIsWalkable(testUR) == false then -- Collide with top
+    if level:pointIsWalkable(testUL) == false or level:pointIsWalkable(testUR) == false then -- Collide with top
       player.velocity.y = 0
     end
   end
@@ -192,7 +219,7 @@ function game.update(self, dt)
     local testUR = vector(newUR.x, curUR.y)
     local testBR = vector(newBR.x, curBR.y - 1)
 
-    if lvl:pointIsWalkable(testUR) == false or lvl:pointIsWalkable(testBR) == false then
+    if level:pointIsWalkable(testUR) == false or level:pointIsWalkable(testBR) == false then
       player.velocity.x = 0
     end
   end
@@ -201,7 +228,7 @@ function game.update(self, dt)
     local testUL = vector(newUL.x, curUL.y)
     local testBL = vector(newBL.x, curBL.y - 1)
 
-    if lvl:pointIsWalkable(testUL) == false or lvl:pointIsWalkable(testBL) == false then
+    if level:pointIsWalkable(testUL) == false or level:pointIsWalkable(testBL) == false then
       player.velocity.x = 0
     end
   end
@@ -215,8 +242,6 @@ function game.update(self, dt)
   
   camera.focus = player.position
   camera:update(dt)
-
-
 end
 
 function game.draw(self)
@@ -224,9 +249,14 @@ function game.draw(self)
 
   -- Game
   love.graphics.translate(-camera.offset.x, -camera.offset.y)
-  lvl:draw()
+  level:draw()
   
-  -- Update enemies
+  -- Draw pickups
+  for i, pickup in ipairs(game.pickups) do
+    pickup:draw()
+  end
+
+  -- Draw enemies
   for i, enemy in ipairs(game.enemies) do
     enemy:draw()
   end

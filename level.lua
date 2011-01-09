@@ -31,6 +31,8 @@ Level = class(function(level, name)
   end
 
   local x, y = 1, 1
+  
+  level.pickupSpawns = {}
 
   for row in level.tileString:gmatch("[^\n]+") do
     assert(#row == width, 'Map is not aligned: width of row ' .. tostring(y) .. ' should be ' .. tostring(width) .. ', but it is ' .. tostring(#row))
@@ -43,6 +45,9 @@ Level = class(function(level, name)
         level.tiles[x][y] = ' '
       elseif character == 'E' then
         level:addEnemyStart(x, y)
+        level.tiles[x][y] = ' '
+      elseif character == '*' then
+        level:addPickupSpawn(x, y)
         level.tiles[x][y] = ' '
       else  
         level.tiles[x][y] = character
@@ -62,6 +67,11 @@ end
 function Level:addEnemyStart(x, y)
   local coords = self:toWorldCoords(vector(x, y))
   table.insert(self.enemyStarts, coords + vector(math.floor(self.tileSize * self.scale / 2), math.floor(self.tileSize * self.scale / 2)))
+end
+
+function Level:addPickupSpawn(x, y)
+  local coords = self:toWorldCoords(vector(x, y))
+  table.insert(self.pickupSpawns, coords + vector(math.floor(self.tileSize * self.scale / 2), math.floor(self.tileSize * self.scale / 2)))
 end
 
 function Level:draw()
