@@ -18,6 +18,8 @@ function menu.enter(self, pre)
   menu.subtitle = 'a game by Jay Roberts'
   
   menu.redditlogo = love.graphics.newImage('resources/images/redditgamejam05.png')
+  menu.heart = love.graphics.newImage('resources/images/heart.png')
+  menu.heart:setFilter('nearest', 'nearest')
   
   menu.sounds = {
     menuselect = love.audio.newSource('resources/sounds/menuselect.mp3', 'static'),
@@ -62,7 +64,7 @@ function menu.enter(self, pre)
   
   menu.position = vector(100, 100)
   
-  menu.lineHeight = 20
+  menu.lineHeight = 30
   
   menu.index = 1
   
@@ -126,15 +128,27 @@ function menu.update(self, dt)
 end
 
 function menu.draw(self)
+  love.graphics.setFont(fonts.large)
+
+  love.graphics.setColor(50, 50, 50, 200)
+  love.graphics.print(menu.title, 39, 19);
+
   love.graphics.setColor(self.colors.text.r,
                          self.colors.text.g,
                          self.colors.text.b,
                          self.colors.text.a);
   
-  love.graphics.setFont(fonts.large)
   love.graphics.print(menu.title, 40, 20);
   
   love.graphics.setFont(fonts.default)
+
+  love.graphics.setColor(50, 50, 50, 200)
+  love.graphics.print(menu.subtitle, 39, 59);
+
+  love.graphics.setColor(self.colors.text.r,
+                         self.colors.text.g,
+                         self.colors.text.b,
+                         self.colors.text.a);
 
   love.graphics.print(menu.subtitle, 40, 60);
   
@@ -146,6 +160,11 @@ function menu.draw(self)
   local currentLinePosition = 0
   
   for index, entry in pairs(self.entries) do
+    love.graphics.setColor(50, 50, 50, 200)
+    love.graphics.print(entry.title, 
+                        self.position.x - 1, 
+                        self.position.y + currentLinePosition - 1);
+    
     love.graphics.setColor(self.colors.text.r,
                            self.colors.text.g,
                            self.colors.text.b,
@@ -156,6 +175,7 @@ function menu.draw(self)
                              self.colors.highlight.g,
                              self.colors.highlight.b,
                              self.colors.highlight.a);
+      love.graphics.draw(self.heart, self.position.x - 20, self.position.y + currentLinePosition + 10, 0, 2, 2, 8, 8)
     end
 
     love.graphics.print(entry.title, 

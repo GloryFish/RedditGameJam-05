@@ -15,6 +15,8 @@ function gameover.enter(self, pre)
   gameover.subtitle = 'Forever together!'
   
   gameover.redditlogo = love.graphics.newImage('resources/images/redditgamejam05.png')
+  gameover.heart = love.graphics.newImage('resources/images/heart.png')
+  gameover.heart:setFilter('nearest', 'nearest')
   
   gameover.sounds = {
     gameoverselect = love.audio.newSource('resources/sounds/menuselect.mp3', 'static'),
@@ -56,7 +58,7 @@ function gameover.enter(self, pre)
   
   gameover.position = vector(310, 250)
   
-  gameover.lineHeight = 20
+  gameover.lineHeight = 30
   
   gameover.index = 1
   
@@ -128,26 +130,41 @@ function gameover.update(self, dt)
         love.audio.play(self.sounds.gameoverselect)
       end
     end
-
-    if input.state.buttons.newpress.cancel then
-      love.event.push('q')
-    end
   end
 end
 
 function gameover.draw(self)
+  love.graphics.setFont(fonts.large)
+  love.graphics.setColor(50, 50, 50, 200)
+  love.graphics.print(gameover.title, 239, 19);
+  
   love.graphics.setColor(self.colors.text.r,
                          self.colors.text.g,
                          self.colors.text.b,
                          self.colors.text.a);
   
-  love.graphics.setFont(fonts.large)
   love.graphics.print(gameover.title, 240, 20);
   
   love.graphics.setFont(fonts.default)
 
+  love.graphics.setColor(50, 50, 50, 200)
+  love.graphics.print(gameover.subtitle, 254, 59);
+  
+  love.graphics.setColor(self.colors.text.r,
+                         self.colors.text.g,
+                         self.colors.text.b,
+                         self.colors.text.a);
+
   love.graphics.print(gameover.subtitle, 255, 60);
 
+
+  love.graphics.setColor(50, 50, 50, 200)
+  love.graphics.print(string.format("Final Score: %i", gameover.displayscore), 264, 99);
+
+  love.graphics.setColor(self.colors.text.r,
+                         self.colors.text.g,
+                         self.colors.text.b,
+                         self.colors.text.a);
   love.graphics.print(string.format("Final Score: %i", gameover.displayscore), 265, 100);
   
   love.graphics.setBackgroundColor(self.colors.background.r,
@@ -158,12 +175,18 @@ function gameover.draw(self)
   local currentLinePosition = 0
   
   for index, entry in pairs(self.entries) do
+    love.graphics.setColor(50, 50, 50, 200)
+    love.graphics.print(entry.title, 
+                        self.position.x - 1, 
+                        self.position.y + currentLinePosition - 1);
+    
     love.graphics.setColor(self.colors.text.r,
                            self.colors.text.g,
                            self.colors.text.b,
                            self.colors.text.a);
 
     if index == self.index then
+      love.graphics.draw(self.heart, self.position.x - 20, self.position.y + currentLinePosition + 10, 0, 2, 2, 8, 8)
       love.graphics.setColor(self.colors.highlight.r,
                              self.colors.highlight.g,
                              self.colors.highlight.b,
