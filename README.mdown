@@ -8,16 +8,39 @@ IRC: freenode.net #redditgamejam
 
 ## Concept
 
-TBD
+Frank is a busy bird with money on his mind. Linda wants Frank. Help Frank escape Linda's advances as he gathers money.
 
 ## Resources used
 
 ### Textures
 
-TBD
+Uses Ken's nice pixels textures
+- http://forums.tigsource.com/index.php?topic=8813.0
+
+and
+
+Nooks' useless NES-styled platformer stuff
+- http://forums.tigsource.com/index.php?topic=9353.0
+
+From the TigSource Assemblee competition.
 
 ### Fonts
 
-TBD
+silkscreen
+Jason Kottke
 
 ### Sounds
+
+Sound effects created using sfxr
+
+### Music
+
+The Airship Archimedes (NES) by trough 
+http://8bc.org/music/trough/
+
+the magnificent meat shower by coda
+cute girl game by coda
+http://8bc.org/members/coda/
+
+
+All music Creative Commons BY-NC-SA License.
