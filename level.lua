@@ -150,7 +150,6 @@ function Level:getNode(location)
   
   -- ensure location is walkable
   if not self:tilePointIsWalkable(location) then
-    assert(false, 'point not walkable')
     return nil
   end
   
@@ -159,8 +158,6 @@ end
 
 
 function Level:getAdjacentNodes(curnode, dest)
-  assert(false, string.format('getAdjacentNodes called for: %s', tostring(curnode.location)))
-  
   local result = {}
   local cl = curnode.location
   local dl = dest
@@ -169,22 +166,22 @@ function Level:getAdjacentNodes(curnode, dest)
   
   n = self:_handleNode(cl.x + 1, cl.y, curnode, dl.x, dl.y)
   if n then
-    table.insert(resul, n)
+    table.insert(result, n)
   end
 
   n = self:_handleNode(cl.x - 1, cl.y, curnode, dl.x, dl.y)
   if n then
-    table.insert(resul, n)
+    table.insert(result, n)
   end
 
-  n = self:_handleNode(cl.x, cl.y + 1, curnode, dl.c, dl.y)
+  n = self:_handleNode(cl.x, cl.y + 1, curnode, dl.x, dl.y)
   if n then
-    table.insert(resul, n)
+    table.insert(result, n)
   end
 
-  n = self:_handleNode(cl.x, cl.y - 1, curnode, dl.c, dl.y)
+  n = self:_handleNode(cl.x, cl.y - 1, curnode, dl.x, dl.y)
   if n then
-    table.insert(resul, n)
+    table.insert(result, n)
   end
   
   return result
