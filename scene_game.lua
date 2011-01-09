@@ -85,8 +85,8 @@ function game.enter(self, pre)
   game.dyingInterval = 3
   game.dyingDuration = 0
   
-  player.resolve = 0.01
-  game.score = 500
+  player.resolve = 1
+  game.score = 0
 end
 
 function game.mousereleased(self, x, y, button)
