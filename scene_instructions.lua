@@ -1,19 +1,19 @@
 -- 
---  scene_menu.lua
---  redditgamejam-05
+--  scene_instructions.lua
+--  RedditGameJam-05
 --  
---  Created by Jay Roberts on 2011-01-06.
+--  Created by Jay Roberts on 2011-01-08.
 --  Copyright 2011 GloryFish.org. All rights reserved.
 -- 
+
 require 'vector'
 
 -- Game scenes
-require 'scene_game'
--- require 'scene_instructions'
+require 'scene_menu'
 
-menu = Gamestate.new()
+instructions = Gamestate.new()
 
-function menu.enter(self, pre)
+function instructions.enter(self, pre)
   menu.title = 'Unrequited'
   menu.subtitle = 'a game by Jay Roberts'
   
@@ -23,10 +23,10 @@ function menu.enter(self, pre)
       scene = game,
       level = 'levelone'
     },
-    -- {
-    --   title = 'How to play',
-    --   scene = instructions,
-    -- },
+    {
+      title = 'How to play',
+      scene = instructions,
+    },
     {
       title = 'Quit'
     }
@@ -61,41 +61,15 @@ function menu.enter(self, pre)
   
 end
 
-function menu.update(self, dt)
+function instructions.update(self, dt)
   input:update(dt)
   
-  if input.state.buttons.newpress.down then
-    menu.index = menu.index + 1
-    if menu.index > #menu.entries then
-      menu.index = 1
-    end
-  end
-
-  if input.state.buttons.newpress.up then
-    menu.index = menu.index - 1
-    if menu.index < 1 then
-      menu.index = #menu.entries
-    end
-  end
-  
-  if input.state.buttons.newpress.select then
-    if menu.entries[menu.index].title == 'Quit' then
-      love.event.push('q')
-    else
-      if menu.entries[menu.index].level ~= nil then
-        menu.entries[menu.index].scene.level = menu.entries[menu.index].level
-      end
-
-      Gamestate.switch(menu.entries[menu.index].scene)
-    end
-  end
-
   if input.state.buttons.newpress.cancel then
-    love.event.push('q')
+    Gamestate.switch(menu)
   end
 end
 
-function menu.draw(self)
+function instructions.draw(self)
   love.graphics.setColor(self.colors.text.r,
                          self.colors.text.g,
                          self.colors.text.b,
@@ -136,5 +110,5 @@ function menu.draw(self)
   end
 end
 
-function menu.leave(self)
+function instructions.leave(self)
 end

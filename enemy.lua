@@ -39,6 +39,13 @@ Enemy = class(function(enemy, pos, prey)
     love.graphics.newQuad(2 * enemy.tileSize, 2 * enemy.tileSize, enemy.tileSize, enemy.tileSize, enemy.tileset:getWidth(), enemy.tileset:getHeight()),
     love.graphics.newQuad(3 * enemy.tileSize, 2 * enemy.tileSize, enemy.tileSize, enemy.tileSize, enemy.tileset:getWidth(), enemy.tileset:getHeight()),
   }
+
+  enemy.animations['climbing'] = {}
+  enemy.animations['climbing'].frameInterval = 0.1
+  enemy.animations['climbing'].quads = {
+    love.graphics.newQuad(4 * enemy.tileSize, 3 * enemy.tileSize, enemy.tileSize, enemy.tileSize, enemy.tileset:getWidth(), enemy.tileset:getHeight()),
+    love.graphics.newQuad(5 * enemy.tileSize, 3 * enemy.tileSize, enemy.tileSize, enemy.tileSize, enemy.tileset:getWidth(), enemy.tileset:getHeight()),
+  }
   
   enemy.animation = {}
   enemy.animation.current = 'standing'
@@ -68,23 +75,12 @@ function Enemy:setMovement(movement)
   self.velocity.x = movement.x * self.speed
   self.velocity.y = movement.y * self.speed
   
-  
-  
-  
   if movement.x > 0 then
     self.flip = 1
   end
 
   if movement.x < 0 then
     self.flip = -1
-  end
-
-  if self.onground then
-    if movement.x == 0 then
-      self:setAnimation('standing')
-    else
-      self:setAnimation('walking')
-    end    
   end
 end
 
@@ -126,7 +122,21 @@ function Enemy:update(dt, level, target)
   -- Get movement
   self:setMovement(self:getAIMovement(target, level))
   
-  -- Are we on a ladder?
+  -- What animation?
+  local selfTile = level:toTileCoords(self.position)
+  selfTile = selfTile + vector(1, 1)
+  
+  if level.tiles[selfTile.x][selfTile.y] == 'h' or level.tiles[selfTile.x][selfTile.y] == 'H' and self.movement.y ~= 0 then
+    self:setAnimation('climbing')
+  elseif self.movement.x == 0 then
+    if self.path == nil then
+      self:setAnimation('standing') -- Change to frustrated
+    else
+      self:setAnimation('standing')
+    end
+  else
+    self:setAnimation('walking')
+  end 
   
   -- Handle animation
   if #self.animations[self.animation.current].quads > 1 then -- More than one frame
