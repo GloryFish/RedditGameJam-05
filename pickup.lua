@@ -10,6 +10,10 @@ require 'class'
 require 'vector'
 
 Pickup = class(function(pickup, pos) 
+  -- Sounds
+  pickup.sounds = {
+    get = love.audio.newSource('resources/sounds/pickup.mp3', 'static'),
+  } 
   
   -- Tileset
   pickup.tileset = love.graphics.newImage('resources/images/spritesheet.png')
@@ -42,6 +46,7 @@ end)
 
 function Pickup:get()
   -- Play sound
+  love.audio.play(self.sounds.get)
 end
 
 function Pickup:update(dt)

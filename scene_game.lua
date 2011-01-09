@@ -15,6 +15,7 @@ require 'enemy'
 require 'heartburst'
 require 'resolve'
 require 'pickup'
+require 'floating_text'
 require 'astar'
 require 'camera'
 
@@ -57,9 +58,13 @@ function game.enter(self, pre)
   
   astar = AStar(level)
   
-  game.pickups = {}
+  game.pickup = Pickup(vector(0, 0))
+  self:spawnRandomPickup()
   
   game.resolve = Resolve(vector(10, 580))
+  game.floatingtext = FloatingText()
+  
+  game.score = 0
   
   love.graphics.setBackgroundColor(255, 255, 255, 255)
   
@@ -88,9 +93,7 @@ function game.mousereleased(self, x, y, button)
 end
 
 function game.spawnRandomPickup(self)
-  local pos = level.pickupSpawns[math.random(#level.pickupSpawns)]
-  local pickup = Pickup(pos) 
-  table.insert(self.pickups, pickup)
+  game.pickup.position = level.pickupSpawns[math.random(#level.pickupSpawns)]
 end
 
 function game.update(self, dt)
@@ -145,21 +148,18 @@ function game.update(self, dt)
     end
   end
 
-  -- Update pickups
-  local removePickups = {}
-  for i, pickup in ipairs(game.pickups) do
-    pickup:update(dt)
-    
-    if player.position:dist(pickup.position) < 16 then
-      pickup:get()
-      table.insert(removePickups, i)
-    end
-  end
-  for i, v in ipairs(removePickups) do
-     table.remove(self.pickups, v-i+1)
-  end
-  
-  if #self.pickups == 0 then
+  -- Update pickup
+  game.pickup:update(dt)
+  if player.position:dist(game.pickup.position) < 16 then
+    game.pickup:get()
+    local color = {
+      r = 0,
+      g = 255,
+      b = 0,
+      a = 255
+    }
+    game.floatingtext:addText("+10", game.pickup.position - vector(0, 16), color, 3)
+    game.score = game.score + 10
     self:spawnRandomPickup()
   end
 
@@ -240,6 +240,8 @@ function game.update(self, dt)
   game.resolve.currentamount = player.resolve
   game.resolve:update(dt)
   
+  game.floatingtext:update(dt)
+  
   camera.focus = player.position
   camera:update(dt)
 end
@@ -252,9 +254,7 @@ function game.draw(self)
   level:draw()
   
   -- Draw pickups
-  for i, pickup in ipairs(game.pickups) do
-    pickup:draw()
-  end
+  game.pickup:draw()
 
   -- Draw enemies
   for i, enemy in ipairs(game.enemies) do
@@ -265,6 +265,7 @@ function game.draw(self)
 
   game.heartburst:draw()
 
+  game.floatingtext:draw()
 
   if path ~= nil then
     path:draw(255, 0, 0)
@@ -276,7 +277,15 @@ function game.draw(self)
   love.graphics.translate(0, 0)  
   game.logger:draw()
   game.resolve:draw()
+
+  -- Print score
+  love.graphics.setColor(0, 0, 0, 255)
+  local score = string.format("%i", game.score)
+  local scoreWidth = fonts.default:getWidth(score)
   
+  love.graphics.print(score, 
+                      love.graphics.getWidth() / 2 - scoreWidth, 
+                      love.graphics.getHeight() - 24);
 end
 
 function game.leave(self)
