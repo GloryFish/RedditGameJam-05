@@ -74,7 +74,8 @@ Enemy = class(function(enemy, pos, prey)
   -- Instance vars
   enemy.flip = 1
   enemy.position = pos
-  enemy.speed = 130
+  enemy.startspeed = 115
+  enemy.speed = 115
   enemy.onground = true
   enemy.state = 'standing'
   enemy.movement = vector(0, 0) -- This holds a vector containing the last movement input recieved
@@ -111,6 +112,10 @@ function Enemy:setAnimation(animation)
   if (self.animation.current ~= animation) then
     self.animation.current = animation
     self.animation.frame = 1
+    
+    if animation == 'frustrated' then
+      self.speed = self.speed * 1.1
+    end
   end
 end
 
@@ -119,6 +124,7 @@ function Enemy:burst()
     self:setAnimation('bursting')
     self.bursting = true
     self.burstDuration = 0
+    self.speed = self.startspeed
   end
 end
 
