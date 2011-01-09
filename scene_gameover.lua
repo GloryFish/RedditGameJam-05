@@ -13,6 +13,9 @@ gameover = Gamestate.new()
 function gameover.enter(self, pre)
   gameover.title = 'Game Over'
   gameover.subtitle = 'Forever together!'
+
+  gameover.birds = love.graphics.newImage('resources/images/gameover.png')
+  gameover.birds:setFilter('nearest', 'nearest')
   
   gameover.redditlogo = love.graphics.newImage('resources/images/redditgamejam05.png')
   gameover.heart = love.graphics.newImage('resources/images/heart.png')
@@ -56,7 +59,7 @@ function gameover.enter(self, pre)
     }
   }
   
-  gameover.position = vector(310, 250)
+  gameover.position = vector(310, 320)
   
   gameover.lineHeight = 30
   
@@ -159,13 +162,13 @@ function gameover.draw(self)
 
 
   love.graphics.setColor(50, 50, 50, 200)
-  love.graphics.print(string.format("Final Score: %i", gameover.displayscore), 264, 99);
+  love.graphics.print(string.format("Final Score: %i", gameover.displayscore), 264, 279);
 
   love.graphics.setColor(self.colors.text.r,
                          self.colors.text.g,
                          self.colors.text.b,
                          self.colors.text.a);
-  love.graphics.print(string.format("Final Score: %i", gameover.displayscore), 265, 100);
+  love.graphics.print(string.format("Final Score: %i", gameover.displayscore), 265, 280);
   
   love.graphics.setBackgroundColor(self.colors.background.r,
                                    self.colors.background.g,
@@ -202,6 +205,7 @@ function gameover.draw(self)
   
   love.graphics.setColor(255, 255, 255, 255)
   love.graphics.draw(gameover.redditlogo, 500, 500)
+  love.graphics.draw(gameover.birds, 250, 50, 0, 4, 4)
   
   if gameover.leaving then
     local overlayAlpha = (1 - ((gameover.leaveInterval - gameover.leaveDuration) / gameover.leaveInterval)) * 255
