@@ -1,3 +1,13 @@
+-- 
+--  astar.lua
+--  RedditGameJam-05
+--  
+--  Based on John Eriksson's Python A* implementation.
+--  http://www.pygame.org/project-AStar-195-.html
+--
+--  Created by Jay Roberts on 2011-01-08.
+--  Copyright 2011 GloryFish.org. All rights reserved.
+-- 
 
 require 'class'
 require 'vector'
