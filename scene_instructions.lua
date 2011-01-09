@@ -8,9 +8,6 @@
 
 require 'vector'
 
--- Game scenes
-require 'scene_menu'
-
 instructions = Gamestate.new()
 
 function instructions.enter(self, pre)

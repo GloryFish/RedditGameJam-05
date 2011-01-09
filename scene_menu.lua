@@ -9,14 +9,15 @@ require 'vector'
 
 -- Game scenes
 require 'scene_game'
--- require 'scene_instructions'
+require 'scene_instructions'
 
 menu = Gamestate.new()
 
 function menu.enter(self, pre)
   menu.title = 'Unrequited'
   menu.subtitle = 'a game by Jay Roberts'
-  
+
+  menu.bird = love.graphics.newImage('resources/images/menubird.png')
   menu.redditlogo = love.graphics.newImage('resources/images/redditgamejam05.png')
   menu.heart = love.graphics.newImage('resources/images/heart.png')
   menu.heart:setFilter('nearest', 'nearest')
@@ -32,10 +33,10 @@ function menu.enter(self, pre)
       scene = game,
       level = 'levelone'
     },
-    -- {
-    --   title = 'How to play',
-    --   scene = instructions,
-    -- },
+    {
+      title = 'How to play',
+      scene = instructions,
+    },
     {
       title = 'Quit'
     }
@@ -62,7 +63,7 @@ function menu.enter(self, pre)
     }
   }
   
-  menu.position = vector(100, 100)
+  menu.position = vector(70, 100)
   
   menu.lineHeight = 30
   
@@ -187,6 +188,8 @@ function menu.draw(self)
   
   love.graphics.setColor(255, 255, 255, 255)
   love.graphics.draw(menu.redditlogo, 500, 500)
+  
+  love.graphics.draw(menu.bird, 660, 50, 0, -1 * 0.9, 1 * 0.9)
   
   if menu.leaving then
     local overlayAlpha = (1 - ((menu.leaveInterval - menu.leaveDuration) / menu.leaveInterval)) * 255
