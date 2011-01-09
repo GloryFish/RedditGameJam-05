@@ -26,6 +26,9 @@ game.level = ''
 function game.enter(self, pre)
   assert(game.level ~= '', 'game.level not set')
   
+  game.heartoverlay = love.graphics.newImage('resources/images/heart.png')
+  game.heartoverlay:setFilter('nearest', 'nearest')
+  
   game.logger = Logger(vector(40, 40))
   
   if input == nil then
@@ -78,7 +81,11 @@ function game.enter(self, pre)
   music.game:setVolume(0.5)
   love.audio.play(music.game)
   
-  player.resolve = 0.01
+  game.dying = false
+  game.dyingInterval = 3
+  game.dyingDuration = 0
+  
+  player.resolve = 0.5
   game.score = 500
 end
 
@@ -102,6 +109,13 @@ end
 
 function game.spawnRandomPickup(self)
   game.pickup.position = level.pickupSpawns[math.random(#level.pickupSpawns)]
+end
+
+function game.startDying()
+  if not game.dying then
+    game.dying = true
+    game.heartoverlaypos = player.position
+  end
 end
 
 function game.update(self, dt)
@@ -141,11 +155,15 @@ function game.update(self, dt)
     game.logger:addLine(pathMessage)
   end
   
-  input:update(dt)
-  
-  if input.state.buttons.newpress.back then
-    Gamestate.switch(menu)
+  if game.dying then
+    game.dyingDuration = game.dyingDuration + dt
+    if game.dyingDuration > game.dyingInterval then
+      gameover.finalscore = game.score
+      Gamestate.switch(gameover)
+    end
   end
+  
+  input:update(dt)
 
   -- Update enemies
   for i, enemy in ipairs(game.enemies) do
@@ -157,8 +175,7 @@ function game.update(self, dt)
       player:burst()
       
       if player.resolve < 0 then
-        gameover.finalscore = game.score
-        Gamestate.switch(gameover) 
+        game:startDying()
       end
     end
   end
@@ -181,7 +198,11 @@ function game.update(self, dt)
   game.heartburst:update(dt)
 
   -- Apply any controller movement to the player
-  player:setMovement(input.state.movement)
+  if not game.dying then
+    player:setMovement(input.state.movement)
+  else
+    player:setMovement(vector(0, 0))
+  end
   
   if input.state.buttons.newpress.jump then
     if player.onground then
@@ -284,6 +305,13 @@ function game.draw(self)
 
   if path ~= nil and debug then
     path:draw(255, 0, 0)
+  end
+
+  if game.dying then
+    local deathAmount = (game.dyingDuration / game.dyingInterval)
+    local scale = 200 * deathAmount
+    love.graphics.setColor(255, 255, 255, 255)
+    love.graphics.draw(game.heartoverlay, game.heartoverlaypos.x, game.heartoverlaypos.y, 0, scale, scale, 8, 8)
   end
 
   love.graphics.pop()
