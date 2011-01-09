@@ -155,12 +155,6 @@ function game.update(self, dt)
     player.velocity.y = 0
   end
   
-  -- if temp == true then
-  --   player.velocity = player.velocity + lvl.gravity * dt * gravityAmount -- Gravity
-  -- else
-  --   temp = true
-  -- end
-  
   local newPos = player.position + player.velocity * dt
   local curUL, curUR, curBL, curBR = player:getCorners()
   local newUL, newUR, newBL, newBR = player:getCorners(newPos)

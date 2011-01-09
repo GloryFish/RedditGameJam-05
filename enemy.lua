@@ -30,6 +30,15 @@ Enemy = class(function(enemy, pos, prey)
     love.graphics.newQuad(4 * enemy.tileSize, 2 * enemy.tileSize, enemy.tileSize, enemy.tileSize, enemy.tileset:getWidth(), enemy.tileset:getHeight()),
     love.graphics.newQuad(5 * enemy.tileSize, 2 * enemy.tileSize, enemy.tileSize, enemy.tileSize, enemy.tileset:getWidth(), enemy.tileset:getHeight())
   }
+
+  enemy.animations['frustrated'] = {}
+  enemy.animations['frustrated'].frameInterval = 0.03
+  enemy.animations['frustrated'].quads = {
+    love.graphics.newQuad(6 * enemy.tileSize, 4 * enemy.tileSize, enemy.tileSize, enemy.tileSize, enemy.tileset:getWidth(), enemy.tileset:getHeight()),
+    love.graphics.newQuad(7 * enemy.tileSize, 4 * enemy.tileSize, enemy.tileSize, enemy.tileSize, enemy.tileset:getWidth(), enemy.tileset:getHeight()),
+    love.graphics.newQuad(4 * enemy.tileSize, 4 * enemy.tileSize, enemy.tileSize, enemy.tileSize, enemy.tileset:getWidth(), enemy.tileset:getHeight()),
+    love.graphics.newQuad(5 * enemy.tileSize, 4 * enemy.tileSize, enemy.tileSize, enemy.tileSize, enemy.tileset:getWidth(), enemy.tileset:getHeight())
+  }
   
   enemy.animations['walking'] = {}
   enemy.animations['walking'].frameInterval = 0.2
@@ -130,7 +139,7 @@ function Enemy:update(dt, level, target)
     self:setAnimation('climbing')
   elseif self.movement.x == 0 then
     if self.path == nil then
-      self:setAnimation('standing') -- Change to frustrated
+      self:setAnimation('frustrated')
     else
       self:setAnimation('standing')
     end
