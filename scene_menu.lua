@@ -77,8 +77,11 @@ function menu.update(self, dt)
   if menu.leaving then
     menu.leaveDuration = menu.leaveDuration + dt
     
+    music.title:setVolume(1 - ((menu.leaveInterval - menu.leaveDuration) / menu.leaveInterval))
+    
     if menu.leaveDuration > menu.leaveInterval then
       menu.leaving = false
+      music.title:pause()
       Gamestate.switch(menu.entries[menu.index].scene)
     end
   else

@@ -73,23 +73,27 @@ function game.enter(self, pre)
   path = nil
   
   pathMessage = 'No search'
+  
+  music.game:setVolume(0.5)
+  love.audio.play(music.game)
 end
 
 function game.mousereleased(self, x, y, button)
-  local mouseWorldPoint = vector(x, y) + camera.offset
+  if debug then
+    local mouseWorldPoint = vector(x, y) + camera.offset
 
-  local mouseTilePoint = level:toTileCoords(mouseWorldPoint)
-  
-  local playerTilePoint = level:toTileCoords(player.position)
-  
-  path = astar:findPath(mouseTilePoint, playerTilePoint)
-  
-  if path == nil then
-    pathMessage = string.format('No path from %s to %s', tostring(mouseTilePoint), tostring(playerTilePoint))
-  else
-    pathMessage = "Path found"
-  end    
-  
+    local mouseTilePoint = level:toTileCoords(mouseWorldPoint)
+
+    local playerTilePoint = level:toTileCoords(player.position)
+
+    path = astar:findPath(mouseTilePoint, playerTilePoint)
+
+    if path == nil then
+      pathMessage = string.format('No path from %s to %s', tostring(mouseTilePoint), tostring(playerTilePoint))
+    else
+      pathMessage = "Path found"
+    end    
+  end
 end
 
 function game.spawnRandomPickup(self)
@@ -97,39 +101,41 @@ function game.spawnRandomPickup(self)
 end
 
 function game.update(self, dt)
-  game.logger:update(dt)
-  
-  local mouse = vector(love.mouse.getX(), love.mouse.getY()) + camera.offset
-  local tile = level:toTileCoords(mouse)
-  local tileString = 'air'
+  if debug then
+    game.logger:update(dt)
 
-  tile = tile + vector(1, 1)
+    local mouse = vector(love.mouse.getX(), love.mouse.getY()) + camera.offset
+    local tile = level:toTileCoords(mouse)
+    local tileString = 'air'
+
+    tile = tile + vector(1, 1)
   
-  if level.tiles[tile.x] then
-    tileString = level.tiles[tile.x][tile.y]
+    if level.tiles[tile.x] then
+      tileString = level.tiles[tile.x][tile.y]
   
-    if tileString == nil or tileString == ' ' then
-      tileString = 'air'
+      if tileString == nil or tileString == ' ' then
+        tileString = 'air'
+      end
     end
-  end
   
   
-  game.logger:addLine(string.format('World: %i, %i', mouse.x, mouse.y))
-  game.logger:addLine(string.format('Tile: %i, %i, %s', tile.x, tile.y, tileString))
-  if player.onground then
-    game.logger:addLine(string.format('State: %s', 'On Ground'))
-  else
-    game.logger:addLine(string.format('State: %s', 'Jumping'))
-  end
-  game.logger:addLine(string.format('Width: %i Height: %i', level:getWidth(), level:getHeight()))
+    game.logger:addLine(string.format('World: %i, %i', mouse.x, mouse.y))
+    game.logger:addLine(string.format('Tile: %i, %i, %s', tile.x, tile.y, tileString))
+    if player.onground then
+      game.logger:addLine(string.format('State: %s', 'On Ground'))
+    else
+      game.logger:addLine(string.format('State: %s', 'Jumping'))
+    end
+    game.logger:addLine(string.format('Width: %i Height: %i', level:getWidth(), level:getHeight()))
 
-  if (level:pointIsWalkable(mouse)) then
-    game.logger:addLine(string.format('Walkable'))
-  else
-    game.logger:addLine(string.format('Wall'))
-  end
+    if (level:pointIsWalkable(mouse)) then
+      game.logger:addLine(string.format('Walkable'))
+    else
+      game.logger:addLine(string.format('Wall'))
+    end
   
-  game.logger:addLine(pathMessage)
+    game.logger:addLine(pathMessage)
+  end
   
   input:update(dt)
   
@@ -267,7 +273,7 @@ function game.draw(self)
 
   game.floatingtext:draw()
 
-  if path ~= nil then
+  if path ~= nil and debug then
     path:draw(255, 0, 0)
   end
 
@@ -275,7 +281,11 @@ function game.draw(self)
 
   -- UI
   love.graphics.translate(0, 0)  
-  game.logger:draw()
+  
+  if debug then
+    game.logger:draw()
+  end
+
   game.resolve:draw()
 
   -- Print score

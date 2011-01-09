@@ -290,8 +290,8 @@ function Enemy:draw()
                       self.scale,
                       self.offset.x,
                       self.offset.y)
-
-  if self.path ~= nil then
+            
+  if self.path ~= nil and debug then
     self.path:draw(0, 0, 255)
   end
 end

@@ -12,6 +12,7 @@ require 'scene_menu'
 
 function love.load()
   love.graphics.setCaption('Unrequited by Jay Roberts')
+  debug = false
   
   -- Seed random
   local seed = os.time()
@@ -25,6 +26,7 @@ function love.load()
   
   music = {
     title = love.audio.newSource("resources/music/titlemusic.mp3", 'stream'),
+    game = love.audio.newSource("resources/music/gamemusic.mp3", 'stream')
   }
   
   input = Input()
