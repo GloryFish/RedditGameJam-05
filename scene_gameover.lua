@@ -65,8 +65,8 @@ function gameover.enter(self, pre)
   
   gameover.index = 1
   
-  music.title:setVolume(1.0)
-  love.audio.play(music.title)
+  music.gameover:setVolume(1.0)
+  love.audio.play(music.gameover)
   
   gameover.leaving = false
   gameover.leaveInterval = 1
@@ -94,11 +94,14 @@ function gameover.update(self, dt)
   if gameover.leaving then
     gameover.leaveDuration = gameover.leaveDuration + dt
     
-    music.title:setVolume(1 - ((gameover.leaveInterval - gameover.leaveDuration) / gameover.leaveInterval))
+    
+    -- music.gameover:setVolume(1 - (gameover.leaveDuration / gameover.leaveInterval))
+    
+    music.gameover:setVolume(1 - ((gameover.leaveInterval - gameover.leaveDuration) / gameover.leaveInterval))
     
     if gameover.leaveDuration > gameover.leaveInterval then
       gameover.leaving = false
-      music.title:pause()
+      love.audio.stop(music.gameover)
       Gamestate.switch(gameover.entries[gameover.index].scene)
     end
   else

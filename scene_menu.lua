@@ -86,7 +86,7 @@ function menu.update(self, dt)
     
     if menu.leaveDuration > menu.leaveInterval then
       menu.leaving = false
-      music.title:pause()
+      love.audio.stop(music.title)
       Gamestate.switch(menu.entries[menu.index].scene)
     end
   else

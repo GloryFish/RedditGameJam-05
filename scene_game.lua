@@ -159,6 +159,7 @@ function game.update(self, dt)
     game.dyingDuration = game.dyingDuration + dt
     if game.dyingDuration > game.dyingInterval then
       gameover.finalscore = game.score
+      love.audio.stop(music.game)
       Gamestate.switch(gameover)
     end
   end

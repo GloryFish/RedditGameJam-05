@@ -26,7 +26,8 @@ function love.load()
   
   music = {
     title = love.audio.newSource("resources/music/titlemusic.mp3", 'stream'),
-    game = love.audio.newSource("resources/music/gamemusic.mp3", 'stream')
+    game = love.audio.newSource("resources/music/gamemusic.mp3", 'stream'),
+    gameover = love.audio.newSource("resources/music/gameovermusic.mp3", 'stream')
   }
   
   music.title:setLooping(true)
