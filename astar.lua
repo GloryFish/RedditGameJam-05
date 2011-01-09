@@ -17,6 +17,16 @@ function Path:getTotalMoveCost()
   return self.totalCost
 end
 
+function Path:draw()
+  local tileSize = 16
+  local scale = 2
+  
+  love.graphics.setColor(255, 0, 0, 200)
+  
+  for i, node in ipairs(self.nodes) do
+    love.graphics.rectangle('fill', node.location.x * tileSize * scale, node.location.y * tileSize * scale, tileSize * scale, tileSize * scale)
+  end
+end
 
 Node = class(function(node, location, mCost, lid, parent)
   node.location = location -- Where is the node located
@@ -111,8 +121,6 @@ function AStar:findPath(fromlocation, tolocation)
   local goal = tolocation
   local fnode = self.mh:getNode(fromlocation)
 
-  assert(fnode ~= nil, 'fnode was nil')
-  
   local nextNode = nil
   
   if fnode ~= nil then
@@ -129,8 +137,6 @@ function AStar:findPath(fromlocation, tolocation)
     end
     nextNode = self:_getBestOpenNode()
   end
-
-  assert(false, "Returning nil at end of findPath")
 
   return nil
   

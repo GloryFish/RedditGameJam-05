@@ -59,6 +59,8 @@ function game.enter(self, pre)
   
   love.mouse.setVisible(true)
   
+  path = nil
+  
   pathMessage = 'No search'
 end
 
@@ -69,7 +71,7 @@ function game.mousereleased(self, x, y, button)
   
   local playerTilePoint = lvl:toTileCoords(player.position)
   
-  local path = game.astar:findPath(mouseTilePoint, playerTilePoint)
+  path = game.astar:findPath(mouseTilePoint, playerTilePoint)
   
   if path == nil then
     pathMessage = string.format('No path from %s to %s', tostring(mouseTilePoint), tostring(playerTilePoint))
@@ -230,6 +232,11 @@ function game.draw(self)
   player:draw()
 
   game.heartburst:draw()
+
+
+  if path ~= nil then
+    path:draw()
+  end
 
   love.graphics.pop()
 
