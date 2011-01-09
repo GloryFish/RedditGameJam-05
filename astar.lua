@@ -27,11 +27,11 @@ function Path:getTotalMoveCost()
   return self.totalCost
 end
 
-function Path:draw()
+function Path:draw(r, g, b)
   local tileSize = 16
   local scale = 2
   
-  love.graphics.setColor(255, 0, 0, 200)
+  love.graphics.setColor(r, g, b, 200)
   
   for i, node in ipairs(self.nodes) do
     love.graphics.rectangle('fill', node.location.x * tileSize * scale, node.location.y * tileSize * scale, tileSize * scale, tileSize * scale)

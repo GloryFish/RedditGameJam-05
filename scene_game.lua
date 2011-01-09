@@ -37,7 +37,7 @@ function game.enter(self, pre)
   game.enemies = {}
   
   for i,enemyStart in ipairs(lvl.enemyStarts) do
-    local enemy = Enemy(enemyStart)
+    local enemy = Enemy(enemyStart, player)
     table.insert(game.enemies, enemy)
   end
   
@@ -53,7 +53,7 @@ function game.enter(self, pre)
   camera.position = player.position
   camera:update(0)
   
-  game.astar = AStar(lvl)
+  astar = AStar(lvl)
   
   love.graphics.setBackgroundColor(255, 255, 255, 255)
   
@@ -71,7 +71,7 @@ function game.mousereleased(self, x, y, button)
   
   local playerTilePoint = lvl:toTileCoords(player.position)
   
-  path = game.astar:findPath(mouseTilePoint, playerTilePoint)
+  path = astar:findPath(mouseTilePoint, playerTilePoint)
   
   if path == nil then
     pathMessage = string.format('No path from %s to %s', tostring(mouseTilePoint), tostring(playerTilePoint))
@@ -124,7 +124,7 @@ function game.update(self, dt)
 
   -- Update enemies
   for i, enemy in ipairs(game.enemies) do
-    enemy:update(dt, lvl, player.position)
+    enemy:update(dt, lvl, player)
     
     if player.position:dist(enemy.position) < 32 then
       game.heartburst:burst(player.position, math.random(3, 5))
@@ -235,7 +235,7 @@ function game.draw(self)
 
 
   if path ~= nil then
-    path:draw()
+    path:draw(255, 0, 0)
   end
 
   love.graphics.pop()
