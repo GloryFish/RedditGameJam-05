@@ -161,6 +161,18 @@ function Level:toWorldCoords(point)
   return world
 end
 
+function Level:toWorldCoordsCenter(point)
+  local world = vector(
+    point.x * self.tileSize * self.scale,
+    point.y * self.tileSize * self.scale
+  )
+  
+  world = world + vector(self.tileSize * self.scale / 2, self.tileSize * self.scale / 2)
+  
+  return world
+end
+
+
 function Level:toTileCoords(point)
   local coords = vector(math.floor(point.x / (self.tileSize * self.scale)),
                         math.floor(point.y / (self.tileSize * self.scale)))

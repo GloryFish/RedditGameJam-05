@@ -66,6 +66,10 @@ end)
 function Enemy:setMovement(movement)
   self.movement = movement
   self.velocity.x = movement.x * self.speed
+  self.velocity.y = movement.y * self.speed
+  
+  
+  
   
   if movement.x > 0 then
     self.flip = 1
@@ -122,6 +126,8 @@ function Enemy:update(dt, level, target)
   -- Get movement
   self:setMovement(self:getAIMovement(target, level))
   
+  -- Are we on a ladder?
+  
   -- Handle animation
   if #self.animations[self.animation.current].quads > 1 then -- More than one frame
     local interval = self.animations[self.animation.current].frameInterval
@@ -165,33 +171,46 @@ function Enemy:getAIMovement(target, level)
   
   -- If we have a path, follow it
   if self.path ~= nil then
-    -- are we in the first node? REMOVE IT!
     local node = self.path.nodes[1]
     
-    if node ~= nil then -- Make sure we havent eaten all the nodes
-      if selfTile.x == node.location.x and selfTile.y == node.location.y then
+    if node ~= nil then
+      if selfTile.x == node.location.x and selfTile.y == node.location.y then -- are we in the first node? REMOVE IT!
         table.remove(self.path.nodes, 1)
         node = self.path.nodes[1]
       end
+    else -- we need a new path
+      self.pathDuration = 3
     end
   
-    if node ~= nil then -- Make sure we havent eaten all the nodes
-      -- Move horizontally
-      if selfTile.x < node.location.x then
-        return vector(1, 0)
-      elseif selfTile.x > node.location.x then
-        return vector(-1, 0)
-      end
-
-      -- Move vertically
-      if selfTile.y < node.location.y then
-        return vector(0, 1)
-      elseif selfTile.y > node.location.y then
-        return vector(0, -1)
+    if node ~= nil then
+      local movement = vector(0, 0)
+      
+      -- Adjust position
+      local nodeWorld = level:toWorldCoordsCenter(node.location)
+      
+      -- horizontal
+      if math.abs(self.position.x - nodeWorld.x) > 1 then
+        if self.position.x < nodeWorld.x then
+          movement = movement + vector(1, 0)
+        elseif self.position.x > nodeWorld.x then
+          movement = movement + vector(-1, 0)
+        end
       end
       
+      -- vertical
+      if math.abs(self.position.y - nodeWorld.y) > 1 then
+        if self.position.y < nodeWorld.y then
+          movement = movement + vector(0, 1)
+        elseif self.position.y > nodeWorld.y then
+          movement = movement + vector(0, -1)
+        end
+      end
+    
+      return movement
     else
-      return vector(0, 0) -- We're at the end of the path, stand still
+       -- We're at the end of the path, stand still for now
+      self.pathDuration = 3
+      return vector(0, 0)
     end
     
   else -- No path
