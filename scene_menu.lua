@@ -17,6 +17,11 @@ function menu.enter(self, pre)
   menu.title = 'Unrequited'
   menu.subtitle = 'a game by Jay Roberts'
   
+  menu.sounds = {
+    menuselect = love.audio.newSource('resources/sounds/menuselect.mp3', 'static'),
+    menumove = love.audio.newSource('resources/sounds/menumove.mp3', 'static')
+  } 
+  
   menu.entries = {
     {
       title = 'Play',
@@ -59,39 +64,59 @@ function menu.enter(self, pre)
   
   menu.index = 1
   
+  music.title:setVolume(1.0)
+  love.audio.play(music.title)
+  
+  menu.leaving = false
+  menu.leaveInterval = 1
+  menu.leaveDuration = 0
+  
 end
 
 function menu.update(self, dt)
-  input:update(dt)
-  
-  if input.state.buttons.newpress.down then
-    menu.index = menu.index + 1
-    if menu.index > #menu.entries then
-      menu.index = 1
-    end
-  end
-
-  if input.state.buttons.newpress.up then
-    menu.index = menu.index - 1
-    if menu.index < 1 then
-      menu.index = #menu.entries
-    end
-  end
-  
-  if input.state.buttons.newpress.select then
-    if menu.entries[menu.index].title == 'Quit' then
-      love.event.push('q')
-    else
-      if menu.entries[menu.index].level ~= nil then
-        menu.entries[menu.index].scene.level = menu.entries[menu.index].level
-      end
-
+  if menu.leaving then
+    menu.leaveDuration = menu.leaveDuration + dt
+    
+    if menu.leaveDuration > menu.leaveInterval then
+      menu.leaving = false
       Gamestate.switch(menu.entries[menu.index].scene)
     end
-  end
+  else
+    input:update(dt)
 
-  if input.state.buttons.newpress.cancel then
-    love.event.push('q')
+    if input.state.buttons.newpress.down then
+      menu.index = menu.index + 1
+      if menu.index > #menu.entries then
+        menu.index = 1
+      end
+      love.audio.play(self.sounds.menumove)
+    end
+
+    if input.state.buttons.newpress.up then
+      menu.index = menu.index - 1
+      if menu.index < 1 then
+        menu.index = #menu.entries
+      end
+      love.audio.play(self.sounds.menumove)
+    end
+
+    if input.state.buttons.newpress.select then
+      if menu.entries[menu.index].title == 'Quit' then
+        love.event.push('q')
+      else
+        if menu.entries[menu.index].level ~= nil then
+          menu.entries[menu.index].scene.level = menu.entries[menu.index].level
+        end
+
+        menu.leaving = true
+        menu.leaveDuration = 0
+        love.audio.play(self.sounds.menuselect)
+      end
+    end
+
+    if input.state.buttons.newpress.cancel then
+      love.event.push('q')
+    end
   end
 end
 
@@ -134,6 +159,14 @@ function menu.draw(self)
 
     currentLinePosition = currentLinePosition + self.lineHeight;
   end
+  
+  if menu.leaving then
+    local overlayAlpha = (1 - ((menu.leaveInterval - menu.leaveDuration) / menu.leaveInterval)) * 255
+    love.graphics.setColor(255, 255, 255, overlayAlpha)
+    
+    love.graphics.rectangle('fill', 0, 0, love.graphics.getWidth(), love.graphics.getHeight())
+  end
+  
 end
 
 function menu.leave(self)

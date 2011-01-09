@@ -23,6 +23,9 @@ function love.load()
     large =  love.graphics.newFont('resources/fonts/silk.ttf', 48)
   }
   
+  music = {
+    title = love.audio.newSource("resources/music/titlemusic.mp3", 'stream'),
+  }
   
   input = Input()
   
