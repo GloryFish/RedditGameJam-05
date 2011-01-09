@@ -29,6 +29,9 @@ function love.load()
     game = love.audio.newSource("resources/music/gamemusic.mp3", 'stream')
   }
   
+  music.title:setLooping(true)
+  music.game:setLooping(true)
+  
   input = Input()
   
   Gamestate.registerEvents()

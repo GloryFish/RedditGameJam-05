@@ -123,7 +123,7 @@ function Player:burst()
   if not self.bursting then
     self.bursting = true
     self.burstDuration = 0
-    self.resolve = self.resolve - 0.07
+    self.resolve = self.resolve - 0.15
   end
     
 end

@@ -84,8 +84,8 @@ Enemy = class(function(enemy, pos, prey)
   enemy.jumpVector = vector(0, -200)
   
   enemy.path = nil
-  enemy.pathInterval = 3 -- Wait 5 seconds before generating a new path
-  enemy.pathDuration = 2 -- how long since last path generation
+  enemy.pathInterval = 2 -- Wait x seconds before generating a new path
+  enemy.pathDuration = 1 -- how long since last path generation
   
   enemy.bursting = false
   enemy.burstInterval = 3
@@ -238,7 +238,7 @@ function Enemy:getAIMovement(target, level)
         node = self.path.nodes[1]
       end
     else -- we need a new path
-      self.pathDuration = 3
+      self.pathDuration = 3.1
     end
   
     if node ~= nil then
