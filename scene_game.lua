@@ -13,6 +13,7 @@ require 'level'
 require 'player'
 require 'enemy'
 require 'heartburst'
+require 'resolve'
 require 'astar'
 require 'camera'
 
@@ -54,6 +55,8 @@ function game.enter(self, pre)
   camera:update(0)
   
   astar = AStar(lvl)
+  
+  game.resolve = Resolve(vector(10, 580))
   
   love.graphics.setBackgroundColor(255, 255, 255, 255)
   
@@ -129,6 +132,7 @@ function game.update(self, dt)
     if player.position:dist(enemy.position) < 32 then
       game.heartburst:burst(player.position, math.random(3, 5))
       enemy:burst()
+      player:burst()
     end
   end
 
@@ -206,6 +210,9 @@ function game.update(self, dt)
   -- Here we update the player, the final velocity will be applied here
   player:update(dt)
   
+  game.resolve.currentamount = player.resolve
+  game.resolve:update(dt)
+  
   camera.focus = player.position
   camera:update(dt)
 
@@ -238,6 +245,8 @@ function game.draw(self)
   -- UI
   love.graphics.translate(0, 0)  
   game.logger:draw()
+  game.resolve:draw()
+  
 end
 
 function game.leave(self)
