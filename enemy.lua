@@ -55,6 +55,16 @@ Enemy = class(function(enemy, pos, prey)
     love.graphics.newQuad(4 * enemy.tileSize, 3 * enemy.tileSize, enemy.tileSize, enemy.tileSize, enemy.tileset:getWidth(), enemy.tileset:getHeight()),
     love.graphics.newQuad(5 * enemy.tileSize, 3 * enemy.tileSize, enemy.tileSize, enemy.tileSize, enemy.tileset:getWidth(), enemy.tileset:getHeight()),
   }
+
+  enemy.animations['bursting'] = {}
+  enemy.animations['bursting'].frameInterval = 0.2
+  enemy.animations['bursting'].quads = {
+    love.graphics.newQuad(6 * enemy.tileSize, 5 * enemy.tileSize, enemy.tileSize, enemy.tileSize, enemy.tileset:getWidth(), enemy.tileset:getHeight()),
+    love.graphics.newQuad(7 * enemy.tileSize, 5 * enemy.tileSize, enemy.tileSize, enemy.tileSize, enemy.tileset:getWidth(), enemy.tileset:getHeight()),
+    love.graphics.newQuad(4 * enemy.tileSize, 5 * enemy.tileSize, enemy.tileSize, enemy.tileSize, enemy.tileset:getWidth(), enemy.tileset:getHeight()),
+    love.graphics.newQuad(5 * enemy.tileSize, 5 * enemy.tileSize, enemy.tileSize, enemy.tileSize, enemy.tileset:getWidth(), enemy.tileset:getHeight())
+  }
+
   
   enemy.animation = {}
   enemy.animation.current = 'standing'
@@ -64,7 +74,7 @@ Enemy = class(function(enemy, pos, prey)
   -- Instance vars
   enemy.flip = 1
   enemy.position = pos
-  enemy.speed = 120
+  enemy.speed = 130
   enemy.onground = true
   enemy.state = 'standing'
   enemy.movement = vector(0, 0) -- This holds a vector containing the last movement input recieved
@@ -75,6 +85,10 @@ Enemy = class(function(enemy, pos, prey)
   enemy.path = nil
   enemy.pathInterval = 3 -- Wait 5 seconds before generating a new path
   enemy.pathDuration = 2 -- how long since last path generation
+  
+  enemy.bursting = false
+  enemy.burstInterval = 3
+  enemy.burstDuration = 0
   
 end)
 
@@ -97,6 +111,14 @@ function Enemy:setAnimation(animation)
   if (self.animation.current ~= animation) then
     self.animation.current = animation
     self.animation.frame = 1
+  end
+end
+
+function Enemy:burst()
+  if not self.bursting then
+    self:setAnimation('bursting')
+    self.bursting = true
+    self.burstDuration = 0
   end
 end
 
@@ -128,6 +150,14 @@ function Enemy:update(dt, level, target)
   self.animation.elapsed = self.animation.elapsed + dt
   self.pathDuration = self.pathDuration + dt
   
+  if self.bursting then
+    self.burstDuration = self.burstDuration + dt
+    if self.burstDuration > self.burstInterval then
+      self.burstDuration = 0
+      self.bursting = false
+    end
+  end
+  
   -- Get movement
   self:setMovement(self:getAIMovement(target, level))
   
@@ -135,7 +165,9 @@ function Enemy:update(dt, level, target)
   local selfTile = level:toTileCoords(self.position)
   selfTile = selfTile + vector(1, 1)
   
-  if level.tiles[selfTile.x][selfTile.y] == 'h' or level.tiles[selfTile.x][selfTile.y] == 'H' and self.movement.y ~= 0 then
+  if self.bursting then
+    self:setAnimation('bursting')
+  elseif level.tiles[selfTile.x][selfTile.y] == 'h' or level.tiles[selfTile.x][selfTile.y] == 'H' and self.movement.y ~= 0 then
     self:setAnimation('climbing')
   elseif self.movement.x == 0 then
     if self.path == nil then
@@ -161,8 +193,10 @@ function Enemy:update(dt, level, target)
     end
   end
   
-  -- Apply velocity to position
-  self.position = self.position + self.velocity * dt
+  if not self.bursting then
+    -- Apply velocity to position
+    self.position = self.position + self.velocity * dt
+  end
 end
 
 -- Takes a target entity in the world (typically the player) and the level and calculates a movement vector

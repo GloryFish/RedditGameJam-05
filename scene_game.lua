@@ -128,6 +128,7 @@ function game.update(self, dt)
     
     if player.position:dist(enemy.position) < 32 then
       game.heartburst:burst(player.position, math.random(3, 5))
+      enemy:burst()
     end
   end
 
