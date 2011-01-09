@@ -85,7 +85,7 @@ function game.enter(self, pre)
   game.dyingInterval = 3
   game.dyingDuration = 0
   
-  player.resolve = 0.5
+  player.resolve = 0.01
   game.score = 500
 end
 
@@ -169,7 +169,7 @@ function game.update(self, dt)
   for i, enemy in ipairs(game.enemies) do
     enemy:update(dt, level, player)
     
-    if player.position:dist(enemy.position) < 32 then
+    if player.position:dist(enemy.position) < 32 and not game.dying then
       game.heartburst:burst(player.position, math.random(3, 5))
       enemy:burst()
       player:burst()

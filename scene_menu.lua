@@ -53,9 +53,9 @@ function menu.enter(self, pre)
       a = 255
     },
     background = {
-      r = 240,
+      r = 200,
       g = 200,
-      b = 200,
+      b = 250,
       a = 255
     }
   }

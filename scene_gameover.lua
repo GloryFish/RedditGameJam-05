@@ -47,14 +47,14 @@ function gameover.enter(self, pre)
       a = 255
     },
     background = {
-      r = 240,
-      g = 200,
-      b = 200,
+      r = 244,
+      g = 92,
+      b = 92,
       a = 255
     }
   }
   
-  gameover.position = vector(100, 100)
+  gameover.position = vector(310, 250)
   
   gameover.lineHeight = 20
   
@@ -142,15 +142,13 @@ function gameover.draw(self)
                          self.colors.text.a);
   
   love.graphics.setFont(fonts.large)
-  love.graphics.print(gameover.title, 40, 20);
+  love.graphics.print(gameover.title, 240, 20);
   
   love.graphics.setFont(fonts.default)
 
-  love.graphics.print(gameover.subtitle, 55, 60);
+  love.graphics.print(gameover.subtitle, 255, 60);
 
-  love.graphics.print(string.format("Final Score: %i", gameover.displayscore), 400, 60);
-  
-  
+  love.graphics.print(string.format("Final Score: %i", gameover.displayscore), 265, 100);
   
   love.graphics.setBackgroundColor(self.colors.background.r,
                                    self.colors.background.g,
