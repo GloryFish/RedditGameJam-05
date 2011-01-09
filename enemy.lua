@@ -64,7 +64,7 @@ Enemy = class(function(enemy, pos, prey)
   -- Instance vars
   enemy.flip = 1
   enemy.position = pos
-  enemy.speed = 110
+  enemy.speed = 120
   enemy.onground = true
   enemy.state = 'standing'
   enemy.movement = vector(0, 0) -- This holds a vector containing the last movement input recieved
