@@ -44,3 +44,9 @@ http://8bc.org/members/coda/
 
 
 All music Creative Commons BY-NC-SA License.
+
+### Code
+
+Uses HUMP
+
+- http://vrld.github.com/hump/
