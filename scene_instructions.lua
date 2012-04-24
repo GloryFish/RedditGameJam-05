@@ -100,7 +100,7 @@ function instructions.update(self, dt)
 
     if input.state.buttons.newpress.select then
       if instructions.entries[instructions.index].title == 'Quit' then
-        love.event.push('q')
+        love.event.push('quit')
       else
         if instructions.entries[instructions.index].level ~= nil then
           instructions.entries[instructions.index].scene.level = instructions.entries[instructions.index].level
@@ -113,7 +113,7 @@ function instructions.update(self, dt)
     end
 
     if input.state.buttons.newpress.cancel then
-      love.event.push('q')
+      love.event.push('quit')
     end
   end
 end

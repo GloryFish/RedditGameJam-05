@@ -125,7 +125,7 @@ function gameover.update(self, dt)
 
     if input.state.buttons.newpress.select then
       if gameover.entries[gameover.index].title == 'Quit' then
-        love.event.push('q')
+        love.event.push('quit')
       else
         if gameover.entries[gameover.index].level ~= nil then
           gameover.entries[gameover.index].scene.level = gameover.entries[gameover.index].level

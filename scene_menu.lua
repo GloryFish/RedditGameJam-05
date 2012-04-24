@@ -110,7 +110,7 @@ function menu.update(self, dt)
 
     if input.state.buttons.newpress.select then
       if menu.entries[menu.index].title == 'Quit' then
-        love.event.push('q')
+        love.event.push('quit')
       else
         if menu.entries[menu.index].level ~= nil then
           menu.entries[menu.index].scene.level = menu.entries[menu.index].level
@@ -123,7 +123,7 @@ function menu.update(self, dt)
     end
 
     if input.state.buttons.newpress.cancel then
-      love.event.push('q')
+      love.event.push('quit')
     end
   end
 end
